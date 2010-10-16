@@ -208,11 +208,10 @@ sub InsertVolumes
       $sth->finish();
     }
 
-	{
-    my $dsp = diskSpace();    
+      my $dsp = diskSpace();    
     my $sth = $dbh->prepare("update volumes set available=? where id=?");
-	  $sth->execute($dsp, $vol_id);
-}
+      $sth->execute($dsp, $vol_id);
+
     return $vol_id;
   }
 

@@ -29,12 +29,23 @@ use DBI;
 # use Filesys::Df;
 use Digest::MD5 qw(md5_hex);
 
-
 # use Image::ExifTool;
 
 # caricati ma non utilizzati... verranno comodi!!!
 # use DateTime;
 # use DateTime::Format::MySQL;
+
+
+my @all__ext = qw(BridgeCache BridgeCacheT BridgeSort CCH CR2 CRW DS_Store JPG THM WAV bc bct data db hdr iPhoto id inf ipmeta ipspot ipspot_update jpg localized lrcat lrprev pano psd thm tif txt xml xmp); 
+
+my @ignored_ext = qw(BridgeCache BridgeCacheT BridgeSort CCH DS_Store THM bc bct data db iPhoto id inf ipmeta ipspot ipspot_update localized lrcat lrprev pano thm txt xml xmp);
+
+my @ok_ext = qw(CR2 CRW  JPG  WAV  hdr  jpg  pano psd  tif tiff);
+
+my $ext = {}; 
+foreach (@ok_ext) {
+  $ext->{lc($_)} = 1;
+}
 
 
 sub wanted;
@@ -47,6 +58,9 @@ my @dirs = ();
 
 # deve essere globale perchÃ¨ all'interno di wanted!!!! BAH!!!
 my @sql=(); # l'array del sql privo di "insert into directory "
+
+my $dbh = DBI->connect("DBI:mysql:database=catalog;host=localhost",'ste','ste');
+my $opt_d=0;			# debug
 
 my $catalog = 'ste';
 my $schema = 'catalog';
@@ -77,37 +91,76 @@ if (1) {
     print $d."\n";
   }
 }
-
-
 die ("label") unless ( $label );
+
+
+my $memo = qq(
+select * from image i 
+  join directory d on i.dir=d.id 
+  join basedir bd on bd_id=bd.id
+  join volumes v on v.id=volumes_id
+);
+
+my @p;
+
+my $basedir = qq(/Users/stefanobrozzi/Pictures/);
+
+File::Find::find({wanted => \&findfiles}, $basedir);
+
+
+my $denorm_sql = qq(insert into denorm (label,basedir,dir,fname) values (?,?,?,?));
+my $sth = $dbh->prepare($denorm_sql);
+
+foreach my $f (@p) {
+  print $f->{'dir'}." ".$f->{'fname'}."\n";
+  $sth->execute($label, $basedir, $f->{'dir'}, $f->{'fname'});
+}
+
+
+sub findfiles {
+    my ($dev,$ino,$mode,$nlink,$uid,$gid);
+
+    (($dev,$ino,$mode,$nlink,$uid,$gid) = lstat($_)) &&
+    -f _
+    && push @p,getHash($File::Find::dir, $_);
+}
+
+sub getHash {
+  my ($dir, $fname) = @_;
+  my $h = {};
+  $h->{'fname'} = $fname;
+  $h->{'dir'} = $dir;
+  return $h;
+}
+
+exit;
+
+
 #
 # TODO: verifica anche su @dirs...
 #
 
-my $dbh = DBI->connect("DBI:mysql:database=catalog;host=localhost",'ste','ste');
+#
+# 
+#
+sub xxx {
 
-my $opt_d=0; # debug
+  # TODO: replace should be good
+  DeleteOldRecords( $label );
+  my $vid = InsertVolumes($label);
 
+  foreach my $d (@dirs) {
+    @sql = ();  
+    print "directory->".$d."\n";
+    InsertDir( $d, $vid );
+  }
 
-DeleteOldRecords( $label );
-
-my $vid = InsertVolumes($label);
-
-
-foreach my $d (@dirs) {
-  @sql = ();  
-  print "directory->".$d."\n";
-  InsertDir( $d, $vid );
-}
-
-  print ".3.\n" if ($opt_d);
   $dbh->disconnect();
-
+}
 
   # -M  Script start time minus file modification time, in days.
   # $^T : script starting time 
 
-exit;
 
 
 
@@ -115,45 +168,45 @@ exit;
 #
 # va sempre in sovrascrittura
 #
-sub DeleteOldRecords 
-  {
-    my $volname = shift(@_);
-    my $vol_id;
+sub DeleteOldRecords {
 
-    # verifica dell'esitenza
-    ## my $sqldel1 = "select count(*) as c from directory where volid = $vol_id";
+  my $volname = shift(@_);
+  my $vol_id;
 
-    my $sql = "select id from volumes where volname = ?";
-    my $sth2 = $dbh->prepare($sql);
-    $sth2->execute($volname);
+  # verifica dell'esitenza
+  ## my $sqldel1 = "select count(*) as c from directory where volid = $vol_id";
 
-    while ( my @row = $sth2->fetchrow_array ) {
-      $vol_id = $row[0];
-      print $vol_id, "\n";
-    }
-
-
-    # con una FK ...
-    my $sqldel3 = "delete from images where did in (select volid from directory  ?";
-    $sth2 = $dbh->prepare($sqldel3);
-    $sth2->execute($vol_id);
-
-    # cancellazione
-    my $sqldel2 = "delete from directory where volid = ?";
-    $sth2 = $dbh->prepare($sqldel2);
-    $sth2->execute($vol_id);
-    
-    # con una FK passerebbe tutto
-    my $sqldel3 = "delete from volumes where id = ?";
-    $sth2 = $dbh->prepare($sqldel3);
-    $sth2->execute($vol_id);
-
+  my $sql = "select id from volumes where volname = ?";
+  my $sth2 = $dbh->prepare($sql);
+  $sth2->execute($volname);
+  
+  while ( my @row = $sth2->fetchrow_array ) {
+    $vol_id = $row[0];
+    print $vol_id, "\n";
   }
 
 
+# added FK>     # con una FK ...
+# added FK>     my $sqldel3 = "delete from image where did in (select volid from directory where volid=?)";
+# added FK>     $sth2 = $dbh->prepare($sqldel3);
+# added FK>     $sth2->execute($vol_id) or  die "Error:" . $dbh->errstr . " [$sqldel3]\n";
+# added FK> 
+# added FK>     # cancellazione
+# added FK>     my $sqldel2 = "delete from directory where volid = ?";
+# added FK>     $sth2 = $dbh->prepare($sqldel2);
+# added FK>     $sth2->execute($vol_id);
+# added FK>     
 
-sub InsertVolumes
-  {
+  # con una FK passerebbe tutto
+  my $sqldel3 = "delete from volumes where id = ?";
+  $sth2 = $dbh->prepare($sqldel3);
+  $sth2->execute($vol_id);
+  
+}
+
+
+
+sub InsertVolumes {
       my $vol_name = shift(@_);
 
       my $found=0;
@@ -208,8 +261,8 @@ sub InsertVolumes
       $sth->finish();
     }
 
-      my $dsp = diskSpace();    
-    my $sth = $dbh->prepare("update volumes set available=? where id=?");
+      my $dsp = diskSpace();
+      $sth = $dbh->prepare("update volumes set available=? where id=?");
       $sth->execute($dsp, $vol_id);
 
     return $vol_id;
@@ -217,14 +270,12 @@ sub InsertVolumes
 
 
 
-sub InsertDir() 
-{
+sub InsertDir() {
 
   my ($starting_dir, $vol_id) = @_;
-  
 
-  # questa verifica Ã¨ troppo tardi: 
-  # ha giÃ  inserito nel db... 
+  # questa verifica è troppo tardi: 
+  # ha già inserito nel db... 
   # a meno di nn farlo transazionale
   die ("dir non esistente??") unless ( $starting_dir && -d $starting_dir );
   die ("vid??") unless ( $vol_id );
@@ -236,7 +287,6 @@ sub InsertDir()
   *dir    = *File::Find::dir;
   *prune  = *File::Find::prune;
 
-  
   # 
   # questo lo lascio... in realtÃ  non riesco 
   # a cancellare i vecchi record. 
@@ -247,44 +297,42 @@ sub InsertDir()
   $sth->execute($starting_dir);
   my $basedir_id = $dbh->last_insert_id($catalog, $schema, 'volumes', 'id');
 
-
-  print ".1.\n" if ($opt_d);
   # Traverse desired filesystems
   File::Find::find({wanted => \&wanted}, $starting_dir);
 
-  print ".2.\n" if ($opt_d);
   foreach my $s (@sql) {
-
     # proposta: mantiene i record ma li "rinomina"
     # "update directory set oldvolid = volid, volid = NULL";
     my $sqlstr = "insert into directory ".$s;
     my $sth = $dbh->prepare($sqlstr);
     $sth->execute($vol_id, $starting_dir, $basedir_id);
-    
+
     #
     InsertImage($starting_dir, $basedir_id);
-    
+
     # print $sqlstr;
     # TODO: update ... SET dir = substr(dir, length(base_dir)) where  vol_id = $vol_id 
   }
-  
 
 }
 
 
 #
-#
+# inutile, così: potrei fare tutto con find
+# ma pensa avanti ed è possibile mettere un exifReader
 #
 sub InsertImage {
-	my ($dirname, $did) = @_;
+  my ($dirname, $did) = @_;
 	
-	my $sql=qq(insert into image (filename, md5, dir) values (?,?,$did));
-	my $sth = $dbh->prepare($sql);
-	while(<$dirname/*>) {
-		next if ( -d $_);
-		$sth->execute($_, md5_hex($_));
-		printf "%s - %s\n", $_, md5_hex($_);
-	}
+  my $sql=qq(insert into image (filename, md5, dir) values (?,?,$did));
+  my $sth = $dbh->prepare($sql);
+  print "Scanning dir $dirname\n" if ($opt_d);
+  while(<$dirname/*>) {
+    next if ( -d $_);
+    next unless ( -f $_ );
+    $sth->execute($_, md5_hex($_));
+    printf "\t%s - %s\n", $_, md5_hex($_) if ($opt_d);
+  }
 }
 
 
@@ -331,26 +379,26 @@ sub escape {
 }
 
 sub diskSpace {
-	my $os = $^O;
-	my $retval = 0;
+  my $os = $^O;
+  my $retval = 0;
 
-	if ($os =~ m/Win/) {
-		my @space = qx(dir /-C .);
-		my $r = pop(@space);
-		my $MB = 1024*1024;
-		
-	 $retval = $1 if ($r =~ m/(\d+) byte disponibili/);
-	 $retval /= $MB;
-		
-                
-	} elsif ($os =~ m/darwin/) {
-		# TODO
-                #Â df -k
-		$retval = 0;
-	} else {
-            $retval = 0;
-        }
-	return $retval;
+  if ($os =~ m/Win/) {
+    my @space = qx(dir /-C .);
+    my $r = pop(@space);
+    my $MB = 1024*1024;
+    
+    $retval = $1 if ($r =~ m/(\d+) byte disponibili/);
+    $retval /= $MB;
+    
+    
+  } elsif ($os =~ m/darwin/) {
+    # TODO
+    #Â df -k
+    $retval = 0;
+  } else {
+    $retval = 0;
+  }
+  return $retval;
 
 }
 
@@ -364,10 +412,10 @@ sub wanted {
     
 # non tutte le variabili sono valorizzate, come mai???
     (($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = lstat($_)) &&
-	-d _ 
-##	&& (int(-M _) < $time_lapse)
+      -d _ 
+	##	&& (int(-M _) < $time_lapse)
 	&& push(@sql, sprintf("(volid, base_dir, bd_id, dir) values (?, ?, ?, '%s/%s' );", 
-		 escape($dir), escape($_) )) if (!($dir =~ m/Previews\.lrdata/i || $dir =~ m/recycler/i || $dir =~ m/system volume information/i));
+			      escape($File::Find::dir), escape($_) )) if (!($File::Find::dir =~ m/Previews\.lrdata/i || $File::Find::dir =~ m/recycler/i || $File::Find::dir =~ m/system volume information/i));
 # ---- qui ancora con epoch...
 #	&& push(@sql, sprintf("(volid, base_dir, bd_id, dir, name, epoch) values (?, ?, ?, '%s','%s', %f);", 
 #		 $dir, $_, $^T+-M _)) if (!($dir =~ m/recycler/i || $dir =~ m/system volume information/i));

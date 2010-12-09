@@ -1,0 +1,227 @@
+#! /usr/bin/perl -w
+    eval 'exec /usr/bin/perl -S $0 ${1+"$@"}'
+        if 0; #$running_under_some_shell
+
+use strict;
+use File::Find ();
+use DBI;
+use Digest::MD5;
+use Cwd;
+
+=pod
+
+TODO: fare un relocate - cerca il nome file e fa un update della dir
+TODO: nuova tab solo con dir
+
+=cut
+
+
+my $dbh;
+
+use vars qw/*name *dir *prune/;
+*name   = *File::Find::name;
+*dir    = *File::Find::dir;
+*prune  = *File::Find::prune;
+
+sub wanted;
+
+
+my $dir = getcwd;
+print $dir;
+
+
+# Traverse desired filesystems
+File::Find::find({wanted => \&wanted}, '.');
+exit;
+
+
+sub wanted {
+    my ($dev,$ino,$mode,$nlink,$uid,$gid);
+
+    (($dev,$ino,$mode,$nlink,$uid,$gid) = lstat($_)) &&
+    /^.*\.cr2\z/si
+    && checkFiles($dir, $_, $name);
+}
+
+
+
+sub checkFiles {
+
+  my ($dir, $file, $name) = @_;
+
+  # TODO: $file non è utilizzato
+  my $fname = $dir."/".$name;
+  my $size = -s $fname;
+  my $md5 = calcMD5($fname);
+  my ($subdir) = ($name =~ m#\./(.*)$file$#);
+#  print "$dir $file $name $fulldir\n";
+
+  createDB_if_needed($dir);
+  my $dirnum = insert_dir_in_DB($dir);
+  insert_file_in_DB( $dirnum, $subdir, $file, $md5, $size );
+
+}
+
+
+
+
+sub createDB_if_needed($) {
+
+  my ($dir) = @_;
+  my $db = qq($dir/.md5.db);
+  my $create = 1 unless ( -f "$db");
+
+
+  $dbh = DBI->connect("dbi:SQLite:dbname=$db","","");
+
+
+  if ($create) {
+
+    my $sql = qq(create table md5 (id integer primary key, dir integer, subdir text, file text, md5 varchar(32), size integer));
+    my $sth = $dbh->prepare($sql);
+    $sth->execute;
+    
+    $sql = qq(create table dirs (id integer primary key, dir text, label text, data date));
+    $sth = $dbh->prepare($sql);
+    $sth->execute;
+
+  }
+
+}
+
+
+
+sub insert_dir_in_DB($) {
+
+  my ($dir) = @_;
+
+
+  my $sql = qq(insert into dirs (dir, label, data) values (?,?,datetime('now')));
+
+  my $sth = $dbh->prepare($sql);
+  $sth->bind_param(1, $dir);
+  $sth->bind_param(2, 'no label per ora');
+  $sth->execute;
+
+  # my $rv = $dbh->last_insert_id(); # $catalog, $schema, $table, $field);
+  
+  my $rv = 1; # suppongo abbia un solo record!!!
+  return $rv;
+  
+}
+
+
+# TODO
+# tutte le volte si connette. ok
+# tutte le volte fa prepare() ok
+#
+sub insert_file_in_DB {
+
+  my ($dir, $sub, $file, $md5, $size) = @_;
+
+# TODO: $dir è sempre la stessa!!!!
+  my $sth = $dbh->prepare("INSERT INTO md5 (dir, subdir, file, md5, size) VALUES (?,?,?,?,?)");
+  # $sth->bind_param(1, $binary_data, SQL_BLOB); # binary_data will
+  $sth->bind_param(1, $dir);
+  $sth->bind_param(2, $sub);
+  $sth->bind_param(3, $file);
+  $sth->bind_param(4, $md5);
+  $sth->bind_param(5, $size);
+  $sth->execute;
+  
+
+}
+
+sub importAll {
+
+}
+
+
+
+sub calcMD5 {
+  my $f = $_[0];
+  my $ctx = Digest::MD5->new;
+
+  open (FILE, qq($f)) or die "cannot open file $f: $!";
+  binmode(FILE);
+  return Digest::MD5->new->addfile(*FILE)->hexdigest;
+
+  # $ctx->addfile(*FILE);
+  # my $digest = $ctx->hexdigest;
+  close (FILE);
+
+}
+
+
+=pod sql
+
+
+
+attach database '/Volumes/MAXTOR500_2/canon.new/Istanbul_p3000/.md5.db' as b;
+attach database '/Volumes/MAXTOR500_2/canon.new/Istanbul/.md5.db' as a;
+
+-- file presenti in a ma non in b
+select count(file) from a.md5 where file not in (select file from b.md5);
+--
+select count(*) from b.md5 where file not in (select file from a.md5);
+
+--
+select distinct(dir), count(*) from md5 where file not in (select file from b.md5) group by dir;
+
+-- dai i files uguali, verifica i codici md5
+select a1.file, a1.md5, b1.md5, a1.size, b1.size from a.md5 a1, b.md5 b1 where a1.md5 <> b1.md5 and a1.file = b1.file;
+
+-- ==  nella stessa dir
+-- file doppi - con lo stesso nome
+select id, file from md5 m1 where file in (select file from md5 m2 where m1.id <> m2.id);
+
+-- stesso nome e stesso md5
+select id, file from md5 m1 where file in (select file from md5 m2 where m1.id <> m2.id and m1.md5=m2.md5);
+
+-- stesso nome MA diverso md5
+select id, file from md5 m1 where file in (select file from md5 m2 where m1.id <> m2.id and m1.md5<>m2.md5);
+
+-- file cancellabile... visto che ne trova in entrambe le dir
+select a1.file from a.md5 a1, b.md5 b1 where a1.md5 = b1.md5 and a1.file = b1.file and a1.size = b1.size;
+
+
+=cut
+
+
+=pod wip
+
+sub check
+{
+
+my $c1=qq(attach database '/Volumes/MAXTOR500_2/canon.new/Istanbul_p3000/.md5.db' as b;);
+my $c2=qq(attach database '/Volumes/MAXTOR500_2/canon.new/Istanbul/.md5.db' as a;);
+
+-- file presenti in a ma non in b
+
+
+select count(*) from a.md5 where file not in (select file from b.md5);
+--
+select count(*) from b.md5 where file not in (select file from a.md5);
+
+--
+select distinct(dir), count(*) from md5 where file not in (select file from b.md5) group by dir;
+
+-- dai i files uguali, verifica i codici md5
+select a1.file, a1.md5, b1.md5, a1.size, b1.size from a.md5 a1, b.md5 b1 where a1.md5 <> b1.md5 and a1.file = b1.file;
+
+-- ==  nella stessa dir
+-- file doppi - con lo stesso nome
+select id, file from md5 m1 where file in (select file from md5 m2 where m1.id <> m2.id);
+
+-- stesso nome e stesso md5
+select id, file from md5 m1 where file in (select file from md5 m2 where m1.id <> m2.id and m1.md5=m2.md5);
+
+-- stesso nome MA diverso md5
+select id, file from md5 m1 where file in (select file from md5 m2 where m1.id <> m2.id and m1.md5<>m2.md5);
+
+-- file cancellabile... visto che ne trova in entrambe le dir
+select a1.file from a.md5 a1, b.md5 b1 where a1.md5 = b1.md5 and a1.file = b1.file and a1.size = b1.size;
+
+
+
+=cut

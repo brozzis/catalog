@@ -1,0 +1,28 @@
+
+
+attach database 'Istanbul_p3000/.md5.db' as b;
+attach database 'Istanbul/.md5.db' as a;
+
+-- file presenti in a ma non in b
+select count(file) from a.md5 where file not in (select file from b.md5);
+--
+select count(*) from b.md5 where file not in (select file from a.md5);
+
+--
+select distinct(dir), count(*) from md5 where file not in (select file from b.md5) group by dir;
+
+-- dai i files uguali, verifica i codici md5
+select a1.file, a1.md5, b1.md5, a1.size, b1.size from a.md5 a1, b.md5 b1 where a1.md5 <> b1.md5 and a1.file = b1.file;
+
+-- ==  nella stessa dir
+-- file doppi - con lo stesso nome
+select id, file from md5 m1 where file in (select file from md5 m2 where m1.id <> m2.id);
+
+-- stesso nome e stesso md5
+select id, file from md5 m1 where file in (select file from md5 m2 where m1.id <> m2.id and m1.md5=m2.md5);
+
+-- stesso nome MA diverso md5
+select id, file from md5 m1 where file in (select file from md5 m2 where m1.id <> m2.id and m1.md5<>m2.md5);
+
+-- file cancellabile... visto che ne trova in entrambe le dir
+select a1.file from a.md5 a1, b.md5 b1 where a1.md5 = b1.md5 and a1.file = b1.file and a1.size = b1.size;

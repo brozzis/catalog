@@ -1,0 +1,10 @@
+
+find /Users/stefanobrozzi/Pictures -type f > /tmp/files.txt
+
+cat /tmp/files.txt > /tmp/tt
+for i in BridgeCache BridgeCacheT BridgeSort CCH DS_Store THM bc bct data db iPhoto id inf ipmeta ipspot ipspot_update localized lrcat lrprev thm txt xml xmp
+do
+
+	grep -v ${i}$ /tmp/tt > /tmp/ww
+	cat /tmp/ww > /tmp/tt
+done

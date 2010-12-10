@@ -1,0 +1,6 @@
+
+-- questi sono i doppi
+select i.mit, i.name from images i, images i1 where i.mit=16 and i.md5=i1.md5 and i.id<>i1.id;
+
+-- doppi: indica dove e quali
+select i1.mit, i1.name from images i, images i1 where i.mit=16 and i.md5=i1.md5 and i.id<>i1.id;

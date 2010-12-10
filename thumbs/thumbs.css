@@ -1,0 +1,52 @@
+
+img { border: solid 1px black }
+
+/* Common */
+
+/* Tags that get the default font. */
+ADDRESS, BIG, BLOCKQUOTE, BODY, CAPTION, CENTER, DD, DIR, DIV, DL, DT, FORM, MENU, OL, P, TD, TH, UL     { font-family: "Trebuchet MS", sans-serif }
+
+/* Elements */
+
+A   { text-decoration: none; background-color: transparent; color: orange; cursor: hand  }
+A:hover   { background-color: orange; color: navy; cursor: hand  }
+
+title { 
+font-family: Arial, sans-serif;
+  font-weight: bold; 
+  font-size:14pt; 
+}
+
+subtitle {  
+font-family: Arial, sans-serif;
+  font-weight: normal; 
+  font-size:12pt; 
+}
+
+TR.exif { 
+	font-size: x-small; 
+	background: yellow;
+	border: 1;
+ }
+
+BODY { 
+cursor: default; 
+background: no-repeat #696969;
+}
+
+
+H1 { font-weight: bold;
+font-family: Arial, sans-serif; }
+
+H2 { font-weight: bold;
+font-family: Arial, sans-serif;
+font-size: 14pt;
+line-height: 16pt;
+margin-bottom: 10pt;
+}
+
+H3    { color: white; font-weight: bold; font-family: Arial, sans-serif; margin: 0pt 0pt 12pt; padding: 2px 1px 2px 4px }
+
+H5   { color: white; font-weight: bold; font-family: Arial, sans-serif; margin: 0pt 0pt 4pt }
+
+HTML { }

@@ -1,0 +1,24 @@
+
+create table thumbs as select distinct md5 from images;
+
+alter table thumbs add thumbnail oid;
+
+update thumbs set thumbnail=i.thumbnail from images i where i.md5=thumbs.md5 and i.thumbnail is not null;
+
+alter table images rename to img_table;
+
+create view images as select i.*, t.thumbnail from img_table i, thumbs t where i.md5=t.md5;
+
+* unique + key on thumbs
+
+NUOVO INSERIEMNTO
+
+insert dati into img_table;
+select * from thumbs where md5 = ?
+
+if (! found ()) {
+
+   crea thumbnail
+   insert into thumbs 
+
+}

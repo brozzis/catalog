@@ -1,0 +1,399 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>provenza 2k+2</title>
+
+<link rel="stylesheet" href="thumbs.css">
+  </head>
+  <body>
+
+    <h1>provenza 2k+2</h1>
+
+
+
+<script language="JavaScript">
+<!--
+
+function WM_imageSwap(daImage, daSrc){
+  var objStr,obj;
+  /*
+    WM_imageSwap()
+    Changes the source of an image.
+
+    Source: Webmonkey Code Library
+    (http://www.hotwired.com/webmonkey/javascript/code_library/)
+
+    Author: Shvatz
+    Author Email: shvatz@wired.com
+
+    Usage: WM_imageSwap(originalImage, 'newSourceUrl');
+
+    Requires: WM_preloadImages() (optional, but recommended)
+    Thanks to Ken Sundermeyer (ksundermeyer@macromedia.com) for his help
+    with variables in ie3 for the mac. 
+    */
+
+  // Check to make sure that images are supported in the DOM.
+  if(document.images){
+    // Check to see whether you are using a name, number, or object
+    if (typeof(daImage) == 'string') {
+      // This whole objStr nonesense is here solely to gain compatability
+      // with ie3 for the mac.
+      objStr = 'document.' + daImage;
+      obj = eval(objStr);
+      obj.src = daSrc;
+    } else if ((typeof(daImage) == 'object') && daImage && daImage.src) {
+      daImage.src = daSrc;
+    }
+  }
+}
+
+
+// -->
+
+</script>
+
+<a href="out/html/IMG_3265.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3265.jpg', 'out/mini/th_IMG_3265.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3265.jpg', 'out/mini/th_gr_IMG_3265.jpg' );">
+<img height=100 name=xIMG_3265 border=0 src="out/mini/th_gr_IMG_3265.jpg"></a>
+<a href="out/html/IMG_3266.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3266.jpg', 'out/mini/th_IMG_3266.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3266.jpg', 'out/mini/th_gr_IMG_3266.jpg' );">
+<img height=100 name=xIMG_3266 border=0 src="out/mini/th_gr_IMG_3266.jpg"></a>
+<a href="out/html/IMG_3267.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3267.jpg', 'out/mini/th_IMG_3267.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3267.jpg', 'out/mini/th_gr_IMG_3267.jpg' );">
+<img height=100 name=xIMG_3267 border=0 src="out/mini/th_gr_IMG_3267.jpg"></a>
+<a href="out/html/IMG_3268.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3268.jpg', 'out/mini/th_IMG_3268.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3268.jpg', 'out/mini/th_gr_IMG_3268.jpg' );">
+<img height=100 name=xIMG_3268 border=0 src="out/mini/th_gr_IMG_3268.jpg"></a>
+<a href="out/html/IMG_3269.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3269.jpg', 'out/mini/th_IMG_3269.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3269.jpg', 'out/mini/th_gr_IMG_3269.jpg' );">
+<img height=100 name=xIMG_3269 border=0 src="out/mini/th_gr_IMG_3269.jpg"></a>
+<a href="out/html/IMG_3270.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3270.jpg', 'out/mini/th_IMG_3270.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3270.jpg', 'out/mini/th_gr_IMG_3270.jpg' );">
+<img height=100 name=xIMG_3270 border=0 src="out/mini/th_gr_IMG_3270.jpg"></a>
+<a href="out/html/IMG_3271.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3271.jpg', 'out/mini/th_IMG_3271.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3271.jpg', 'out/mini/th_gr_IMG_3271.jpg' );">
+<img height=100 name=xIMG_3271 border=0 src="out/mini/th_gr_IMG_3271.jpg"></a>
+<a href="out/html/IMG_3272.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3272.jpg', 'out/mini/th_IMG_3272.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3272.jpg', 'out/mini/th_gr_IMG_3272.jpg' );">
+<img height=100 name=xIMG_3272 border=0 src="out/mini/th_gr_IMG_3272.jpg"></a>
+<a href="out/html/IMG_3273.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3273.jpg', 'out/mini/th_IMG_3273.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3273.jpg', 'out/mini/th_gr_IMG_3273.jpg' );">
+<img height=100 name=xIMG_3273 border=0 src="out/mini/th_gr_IMG_3273.jpg"></a>
+<a href="out/html/IMG_3274.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3274.jpg', 'out/mini/th_IMG_3274.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3274.jpg', 'out/mini/th_gr_IMG_3274.jpg' );">
+<img height=100 name=xIMG_3274 border=0 src="out/mini/th_gr_IMG_3274.jpg"></a>
+<a href="out/html/IMG_3275.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3275.jpg', 'out/mini/th_IMG_3275.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3275.jpg', 'out/mini/th_gr_IMG_3275.jpg' );">
+<img height=100 name=xIMG_3275 border=0 src="out/mini/th_gr_IMG_3275.jpg"></a>
+<a href="out/html/IMG_3276.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3276.jpg', 'out/mini/th_IMG_3276.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3276.jpg', 'out/mini/th_gr_IMG_3276.jpg' );">
+<img height=100 name=xIMG_3276 border=0 src="out/mini/th_gr_IMG_3276.jpg"></a>
+<a href="out/html/IMG_3277.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3277.jpg', 'out/mini/th_IMG_3277.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3277.jpg', 'out/mini/th_gr_IMG_3277.jpg' );">
+<img height=100 name=xIMG_3277 border=0 src="out/mini/th_gr_IMG_3277.jpg"></a>
+<a href="out/html/IMG_3278.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3278.jpg', 'out/mini/th_IMG_3278.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3278.jpg', 'out/mini/th_gr_IMG_3278.jpg' );">
+<img height=100 name=xIMG_3278 border=0 src="out/mini/th_gr_IMG_3278.jpg"></a>
+<a href="out/html/IMG_3279.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3279.jpg', 'out/mini/th_IMG_3279.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3279.jpg', 'out/mini/th_gr_IMG_3279.jpg' );">
+<img height=100 name=xIMG_3279 border=0 src="out/mini/th_gr_IMG_3279.jpg"></a>
+<a href="out/html/IMG_3280.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3280.jpg', 'out/mini/th_IMG_3280.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3280.jpg', 'out/mini/th_gr_IMG_3280.jpg' );">
+<img height=100 name=xIMG_3280 border=0 src="out/mini/th_gr_IMG_3280.jpg"></a>
+<a href="out/html/IMG_3281.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3281.jpg', 'out/mini/th_IMG_3281.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3281.jpg', 'out/mini/th_gr_IMG_3281.jpg' );">
+<img height=100 name=xIMG_3281 border=0 src="out/mini/th_gr_IMG_3281.jpg"></a>
+<a href="out/html/IMG_3282.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3282.jpg', 'out/mini/th_IMG_3282.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3282.jpg', 'out/mini/th_gr_IMG_3282.jpg' );">
+<img height=100 name=xIMG_3282 border=0 src="out/mini/th_gr_IMG_3282.jpg"></a>
+<a href="out/html/IMG_3283.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3283.jpg', 'out/mini/th_IMG_3283.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3283.jpg', 'out/mini/th_gr_IMG_3283.jpg' );">
+<img height=100 name=xIMG_3283 border=0 src="out/mini/th_gr_IMG_3283.jpg"></a>
+<a href="out/html/IMG_3284.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3284.jpg', 'out/mini/th_IMG_3284.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3284.jpg', 'out/mini/th_gr_IMG_3284.jpg' );">
+<img height=100 name=xIMG_3284 border=0 src="out/mini/th_gr_IMG_3284.jpg"></a>
+<a href="out/html/IMG_3285.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3285.jpg', 'out/mini/th_IMG_3285.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3285.jpg', 'out/mini/th_gr_IMG_3285.jpg' );">
+<img height=100 name=xIMG_3285 border=0 src="out/mini/th_gr_IMG_3285.jpg"></a>
+<a href="out/html/IMG_3286.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3286.jpg', 'out/mini/th_IMG_3286.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3286.jpg', 'out/mini/th_gr_IMG_3286.jpg' );">
+<img height=100 name=xIMG_3286 border=0 src="out/mini/th_gr_IMG_3286.jpg"></a>
+<a href="out/html/IMG_3287.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3287.jpg', 'out/mini/th_IMG_3287.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3287.jpg', 'out/mini/th_gr_IMG_3287.jpg' );">
+<img height=100 name=xIMG_3287 border=0 src="out/mini/th_gr_IMG_3287.jpg"></a>
+<a href="out/html/IMG_3288.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3288.jpg', 'out/mini/th_IMG_3288.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3288.jpg', 'out/mini/th_gr_IMG_3288.jpg' );">
+<img height=100 name=xIMG_3288 border=0 src="out/mini/th_gr_IMG_3288.jpg"></a>
+<a href="out/html/IMG_3290.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3290.jpg', 'out/mini/th_IMG_3290.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3290.jpg', 'out/mini/th_gr_IMG_3290.jpg' );">
+<img height=100 name=xIMG_3290 border=0 src="out/mini/th_gr_IMG_3290.jpg"></a>
+<a href="out/html/IMG_3291.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3291.jpg', 'out/mini/th_IMG_3291.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3291.jpg', 'out/mini/th_gr_IMG_3291.jpg' );">
+<img height=100 name=xIMG_3291 border=0 src="out/mini/th_gr_IMG_3291.jpg"></a>
+<a href="out/html/IMG_3292.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3292.jpg', 'out/mini/th_IMG_3292.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3292.jpg', 'out/mini/th_gr_IMG_3292.jpg' );">
+<img height=100 name=xIMG_3292 border=0 src="out/mini/th_gr_IMG_3292.jpg"></a>
+<a href="out/html/IMG_3293.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3293.jpg', 'out/mini/th_IMG_3293.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3293.jpg', 'out/mini/th_gr_IMG_3293.jpg' );">
+<img height=100 name=xIMG_3293 border=0 src="out/mini/th_gr_IMG_3293.jpg"></a>
+<a href="out/html/IMG_3294.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3294.jpg', 'out/mini/th_IMG_3294.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3294.jpg', 'out/mini/th_gr_IMG_3294.jpg' );">
+<img height=100 name=xIMG_3294 border=0 src="out/mini/th_gr_IMG_3294.jpg"></a>
+<a href="out/html/IMG_3295.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3295.jpg', 'out/mini/th_IMG_3295.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3295.jpg', 'out/mini/th_gr_IMG_3295.jpg' );">
+<img height=100 name=xIMG_3295 border=0 src="out/mini/th_gr_IMG_3295.jpg"></a>
+<a href="out/html/IMG_3296.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3296.jpg', 'out/mini/th_IMG_3296.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3296.jpg', 'out/mini/th_gr_IMG_3296.jpg' );">
+<img height=100 name=xIMG_3296 border=0 src="out/mini/th_gr_IMG_3296.jpg"></a>
+<a href="out/html/IMG_3297.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3297.jpg', 'out/mini/th_IMG_3297.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3297.jpg', 'out/mini/th_gr_IMG_3297.jpg' );">
+<img height=100 name=xIMG_3297 border=0 src="out/mini/th_gr_IMG_3297.jpg"></a>
+<a href="out/html/IMG_3298.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3298.jpg', 'out/mini/th_IMG_3298.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3298.jpg', 'out/mini/th_gr_IMG_3298.jpg' );">
+<img height=100 name=xIMG_3298 border=0 src="out/mini/th_gr_IMG_3298.jpg"></a>
+<a href="out/html/IMG_3299.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3299.jpg', 'out/mini/th_IMG_3299.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3299.jpg', 'out/mini/th_gr_IMG_3299.jpg' );">
+<img height=100 name=xIMG_3299 border=0 src="out/mini/th_gr_IMG_3299.jpg"></a>
+<a href="out/html/IMG_3300.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3300.jpg', 'out/mini/th_IMG_3300.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3300.jpg', 'out/mini/th_gr_IMG_3300.jpg' );">
+<img height=100 name=xIMG_3300 border=0 src="out/mini/th_gr_IMG_3300.jpg"></a>
+<a href="out/html/IMG_3301.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3301.jpg', 'out/mini/th_IMG_3301.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3301.jpg', 'out/mini/th_gr_IMG_3301.jpg' );">
+<img height=100 name=xIMG_3301 border=0 src="out/mini/th_gr_IMG_3301.jpg"></a>
+<a href="out/html/IMG_3303.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3303.jpg', 'out/mini/th_IMG_3303.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3303.jpg', 'out/mini/th_gr_IMG_3303.jpg' );">
+<img height=100 name=xIMG_3303 border=0 src="out/mini/th_gr_IMG_3303.jpg"></a>
+<a href="out/html/IMG_3304.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3304.jpg', 'out/mini/th_IMG_3304.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3304.jpg', 'out/mini/th_gr_IMG_3304.jpg' );">
+<img height=100 name=xIMG_3304 border=0 src="out/mini/th_gr_IMG_3304.jpg"></a>
+<a href="out/html/IMG_3305.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3305.jpg', 'out/mini/th_IMG_3305.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3305.jpg', 'out/mini/th_gr_IMG_3305.jpg' );">
+<img height=100 name=xIMG_3305 border=0 src="out/mini/th_gr_IMG_3305.jpg"></a>
+<a href="out/html/IMG_3306.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3306.jpg', 'out/mini/th_IMG_3306.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3306.jpg', 'out/mini/th_gr_IMG_3306.jpg' );">
+<img height=100 name=xIMG_3306 border=0 src="out/mini/th_gr_IMG_3306.jpg"></a>
+<a href="out/html/IMG_3307.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3307.jpg', 'out/mini/th_IMG_3307.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3307.jpg', 'out/mini/th_gr_IMG_3307.jpg' );">
+<img height=100 name=xIMG_3307 border=0 src="out/mini/th_gr_IMG_3307.jpg"></a>
+<a href="out/html/IMG_3308.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3308.jpg', 'out/mini/th_IMG_3308.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3308.jpg', 'out/mini/th_gr_IMG_3308.jpg' );">
+<img height=100 name=xIMG_3308 border=0 src="out/mini/th_gr_IMG_3308.jpg"></a>
+<a href="out/html/IMG_3309.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3309.jpg', 'out/mini/th_IMG_3309.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3309.jpg', 'out/mini/th_gr_IMG_3309.jpg' );">
+<img height=100 name=xIMG_3309 border=0 src="out/mini/th_gr_IMG_3309.jpg"></a>
+<a href="out/html/IMG_3310.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3310.jpg', 'out/mini/th_IMG_3310.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3310.jpg', 'out/mini/th_gr_IMG_3310.jpg' );">
+<img height=100 name=xIMG_3310 border=0 src="out/mini/th_gr_IMG_3310.jpg"></a>
+<a href="out/html/IMG_3311.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3311.jpg', 'out/mini/th_IMG_3311.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3311.jpg', 'out/mini/th_gr_IMG_3311.jpg' );">
+<img height=100 name=xIMG_3311 border=0 src="out/mini/th_gr_IMG_3311.jpg"></a>
+<a href="out/html/IMG_3312.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3312.jpg', 'out/mini/th_IMG_3312.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3312.jpg', 'out/mini/th_gr_IMG_3312.jpg' );">
+<img height=100 name=xIMG_3312 border=0 src="out/mini/th_gr_IMG_3312.jpg"></a>
+<a href="out/html/IMG_3313.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3313.jpg', 'out/mini/th_IMG_3313.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3313.jpg', 'out/mini/th_gr_IMG_3313.jpg' );">
+<img height=100 name=xIMG_3313 border=0 src="out/mini/th_gr_IMG_3313.jpg"></a>
+<a href="out/html/IMG_3314.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3314.jpg', 'out/mini/th_IMG_3314.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3314.jpg', 'out/mini/th_gr_IMG_3314.jpg' );">
+<img height=100 name=xIMG_3314 border=0 src="out/mini/th_gr_IMG_3314.jpg"></a>
+<a href="out/html/IMG_3315.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3315.jpg', 'out/mini/th_IMG_3315.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3315.jpg', 'out/mini/th_gr_IMG_3315.jpg' );">
+<img height=100 name=xIMG_3315 border=0 src="out/mini/th_gr_IMG_3315.jpg"></a>
+<a href="out/html/IMG_3316.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3316.jpg', 'out/mini/th_IMG_3316.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3316.jpg', 'out/mini/th_gr_IMG_3316.jpg' );">
+<img height=100 name=xIMG_3316 border=0 src="out/mini/th_gr_IMG_3316.jpg"></a>
+<a href="out/html/IMG_3317.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3317.jpg', 'out/mini/th_IMG_3317.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3317.jpg', 'out/mini/th_gr_IMG_3317.jpg' );">
+<img height=100 name=xIMG_3317 border=0 src="out/mini/th_gr_IMG_3317.jpg"></a>
+<a href="out/html/IMG_3318.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3318.jpg', 'out/mini/th_IMG_3318.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3318.jpg', 'out/mini/th_gr_IMG_3318.jpg' );">
+<img height=100 name=xIMG_3318 border=0 src="out/mini/th_gr_IMG_3318.jpg"></a>
+<a href="out/html/IMG_3319.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3319.jpg', 'out/mini/th_IMG_3319.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3319.jpg', 'out/mini/th_gr_IMG_3319.jpg' );">
+<img height=100 name=xIMG_3319 border=0 src="out/mini/th_gr_IMG_3319.jpg"></a>
+<a href="out/html/IMG_3320.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3320.jpg', 'out/mini/th_IMG_3320.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3320.jpg', 'out/mini/th_gr_IMG_3320.jpg' );">
+<img height=100 name=xIMG_3320 border=0 src="out/mini/th_gr_IMG_3320.jpg"></a>
+<a href="out/html/IMG_3321.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3321.jpg', 'out/mini/th_IMG_3321.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3321.jpg', 'out/mini/th_gr_IMG_3321.jpg' );">
+<img height=100 name=xIMG_3321 border=0 src="out/mini/th_gr_IMG_3321.jpg"></a>
+<a href="out/html/IMG_3322.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3322.jpg', 'out/mini/th_IMG_3322.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3322.jpg', 'out/mini/th_gr_IMG_3322.jpg' );">
+<img height=100 name=xIMG_3322 border=0 src="out/mini/th_gr_IMG_3322.jpg"></a>
+<a href="out/html/IMG_3323.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3323.jpg', 'out/mini/th_IMG_3323.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3323.jpg', 'out/mini/th_gr_IMG_3323.jpg' );">
+<img height=100 name=xIMG_3323 border=0 src="out/mini/th_gr_IMG_3323.jpg"></a>
+<a href="out/html/IMG_3324.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3324.jpg', 'out/mini/th_IMG_3324.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3324.jpg', 'out/mini/th_gr_IMG_3324.jpg' );">
+<img height=100 name=xIMG_3324 border=0 src="out/mini/th_gr_IMG_3324.jpg"></a>
+<a href="out/html/IMG_3325.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3325.jpg', 'out/mini/th_IMG_3325.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3325.jpg', 'out/mini/th_gr_IMG_3325.jpg' );">
+<img height=100 name=xIMG_3325 border=0 src="out/mini/th_gr_IMG_3325.jpg"></a>
+<a href="out/html/IMG_3326.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3326.jpg', 'out/mini/th_IMG_3326.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3326.jpg', 'out/mini/th_gr_IMG_3326.jpg' );">
+<img height=100 name=xIMG_3326 border=0 src="out/mini/th_gr_IMG_3326.jpg"></a>
+<a href="out/html/IMG_3327.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3327.jpg', 'out/mini/th_IMG_3327.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3327.jpg', 'out/mini/th_gr_IMG_3327.jpg' );">
+<img height=100 name=xIMG_3327 border=0 src="out/mini/th_gr_IMG_3327.jpg"></a>
+<a href="out/html/IMG_3328.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3328.jpg', 'out/mini/th_IMG_3328.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3328.jpg', 'out/mini/th_gr_IMG_3328.jpg' );">
+<img height=100 name=xIMG_3328 border=0 src="out/mini/th_gr_IMG_3328.jpg"></a>
+<a href="out/html/IMG_3329.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3329.jpg', 'out/mini/th_IMG_3329.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3329.jpg', 'out/mini/th_gr_IMG_3329.jpg' );">
+<img height=100 name=xIMG_3329 border=0 src="out/mini/th_gr_IMG_3329.jpg"></a>
+<a href="out/html/IMG_3330.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3330.jpg', 'out/mini/th_IMG_3330.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3330.jpg', 'out/mini/th_gr_IMG_3330.jpg' );">
+<img height=100 name=xIMG_3330 border=0 src="out/mini/th_gr_IMG_3330.jpg"></a>
+<a href="out/html/IMG_3331.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3331.jpg', 'out/mini/th_IMG_3331.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3331.jpg', 'out/mini/th_gr_IMG_3331.jpg' );">
+<img height=100 name=xIMG_3331 border=0 src="out/mini/th_gr_IMG_3331.jpg"></a>
+<a href="out/html/IMG_3332.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3332.jpg', 'out/mini/th_IMG_3332.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3332.jpg', 'out/mini/th_gr_IMG_3332.jpg' );">
+<img height=100 name=xIMG_3332 border=0 src="out/mini/th_gr_IMG_3332.jpg"></a>
+<a href="out/html/IMG_3333.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3333.jpg', 'out/mini/th_IMG_3333.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3333.jpg', 'out/mini/th_gr_IMG_3333.jpg' );">
+<img height=100 name=xIMG_3333 border=0 src="out/mini/th_gr_IMG_3333.jpg"></a>
+<a href="out/html/IMG_3334.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3334.jpg', 'out/mini/th_IMG_3334.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3334.jpg', 'out/mini/th_gr_IMG_3334.jpg' );">
+<img height=100 name=xIMG_3334 border=0 src="out/mini/th_gr_IMG_3334.jpg"></a>
+<a href="out/html/IMG_3335.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3335.jpg', 'out/mini/th_IMG_3335.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3335.jpg', 'out/mini/th_gr_IMG_3335.jpg' );">
+<img height=100 name=xIMG_3335 border=0 src="out/mini/th_gr_IMG_3335.jpg"></a>
+<a href="out/html/IMG_3336.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3336.jpg', 'out/mini/th_IMG_3336.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3336.jpg', 'out/mini/th_gr_IMG_3336.jpg' );">
+<img height=100 name=xIMG_3336 border=0 src="out/mini/th_gr_IMG_3336.jpg"></a>
+<a href="out/html/IMG_3337.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3337.jpg', 'out/mini/th_IMG_3337.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3337.jpg', 'out/mini/th_gr_IMG_3337.jpg' );">
+<img height=100 name=xIMG_3337 border=0 src="out/mini/th_gr_IMG_3337.jpg"></a>
+<a href="out/html/IMG_3338.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3338.jpg', 'out/mini/th_IMG_3338.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3338.jpg', 'out/mini/th_gr_IMG_3338.jpg' );">
+<img height=100 name=xIMG_3338 border=0 src="out/mini/th_gr_IMG_3338.jpg"></a>
+<a href="out/html/IMG_3339.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3339.jpg', 'out/mini/th_IMG_3339.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3339.jpg', 'out/mini/th_gr_IMG_3339.jpg' );">
+<img height=100 name=xIMG_3339 border=0 src="out/mini/th_gr_IMG_3339.jpg"></a>
+<a href="out/html/IMG_3340.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3340.jpg', 'out/mini/th_IMG_3340.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3340.jpg', 'out/mini/th_gr_IMG_3340.jpg' );">
+<img height=100 name=xIMG_3340 border=0 src="out/mini/th_gr_IMG_3340.jpg"></a>
+<a href="out/html/IMG_3341.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3341.jpg', 'out/mini/th_IMG_3341.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3341.jpg', 'out/mini/th_gr_IMG_3341.jpg' );">
+<img height=100 name=xIMG_3341 border=0 src="out/mini/th_gr_IMG_3341.jpg"></a>
+<a href="out/html/IMG_3342.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3342.jpg', 'out/mini/th_IMG_3342.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3342.jpg', 'out/mini/th_gr_IMG_3342.jpg' );">
+<img height=100 name=xIMG_3342 border=0 src="out/mini/th_gr_IMG_3342.jpg"></a>
+<a href="out/html/IMG_3343.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3343.jpg', 'out/mini/th_IMG_3343.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3343.jpg', 'out/mini/th_gr_IMG_3343.jpg' );">
+<img height=100 name=xIMG_3343 border=0 src="out/mini/th_gr_IMG_3343.jpg"></a>
+<a href="out/html/IMG_3344.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3344.jpg', 'out/mini/th_IMG_3344.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3344.jpg', 'out/mini/th_gr_IMG_3344.jpg' );">
+<img height=100 name=xIMG_3344 border=0 src="out/mini/th_gr_IMG_3344.jpg"></a>
+<a href="out/html/IMG_3345.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3345.jpg', 'out/mini/th_IMG_3345.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3345.jpg', 'out/mini/th_gr_IMG_3345.jpg' );">
+<img height=100 name=xIMG_3345 border=0 src="out/mini/th_gr_IMG_3345.jpg"></a>
+<a href="out/html/IMG_3346.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3346.jpg', 'out/mini/th_IMG_3346.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3346.jpg', 'out/mini/th_gr_IMG_3346.jpg' );">
+<img height=100 name=xIMG_3346 border=0 src="out/mini/th_gr_IMG_3346.jpg"></a>
+<a href="out/html/IMG_3347.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3347.jpg', 'out/mini/th_IMG_3347.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3347.jpg', 'out/mini/th_gr_IMG_3347.jpg' );">
+<img height=100 name=xIMG_3347 border=0 src="out/mini/th_gr_IMG_3347.jpg"></a>
+<a href="out/html/IMG_3348.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3348.jpg', 'out/mini/th_IMG_3348.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3348.jpg', 'out/mini/th_gr_IMG_3348.jpg' );">
+<img height=100 name=xIMG_3348 border=0 src="out/mini/th_gr_IMG_3348.jpg"></a>
+<a href="out/html/IMG_3349.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3349.jpg', 'out/mini/th_IMG_3349.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3349.jpg', 'out/mini/th_gr_IMG_3349.jpg' );">
+<img height=100 name=xIMG_3349 border=0 src="out/mini/th_gr_IMG_3349.jpg"></a>
+<a href="out/html/IMG_3350.html"
+                onMouseOver="WM_imageSwap( 'xIMG_3350.jpg', 'out/mini/th_IMG_3350.jpg' );"
+                onMouseOut="WM_imageSwap( 'xIMG_3350.jpg', 'out/mini/th_gr_IMG_3350.jpg' );">
+<img height=100 name=xIMG_3350 border=0 src="out/mini/th_gr_IMG_3350.jpg"></a>
+    <hr>
+    <address><a href="mailto:brozzi@dsdata.it"></a></address>
+<!-- Created: Mon May  6 12:01:45 CEST 2002 -->
+<!-- hhmts start -->
+Last modified: Mon May  6 12:09:25 CEST 2002
+<!-- hhmts end -->
+  </body>
+</html>

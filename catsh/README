@@ -1,0 +1,11 @@
+
+con l'utente stefano
+
+catimg.pl
+oppure 
+sh menu.sh
+
+con l'utente postgres (proprietario delle tabelle)
+
+sh 4postgres.sh
+psql image -c aggiorna.sql

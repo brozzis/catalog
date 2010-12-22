@@ -1,0 +1,217 @@
+/*
+ * $Id: stefano.css,v 1.6 2004/03/23 10:15:56 ste Exp $
+ */
+/*
+body { 
+ background-image: "img/shore.jpg"; 
+ background-color:red  
+}
+@page { margin-right: 0.67in; margin-top: 2.17in; margin-bottom: 1.5in }
+body { 
+ background: url("/img/home.jpg");
+ background-attachment: fixed;
+ background-position: 100% 100%;
+ 
+}
+
+*/
+
+      table { border-collapse: collapse; }
+
+      /* top-most tables will have navy cell borders */
+      table td, table th { border: 1px solid navy !important }
+
+      /* tables nested one level deep will have orange borders */
+      table table td, table table th { border: 1px solid orange !important }
+
+      /* tables nested two level deep will have green borders */
+      table table table td, table table table th { border: 1px solid #00cc33 !important }
+
+      /* tables nested three or more level deep will have blue borders */
+      table table table table td,
+      table table table table th { border: 1px solid #3399ff !important }
+
+
+img { border: 1px solid black; } 
+img.nob { border: none;} 
+
+/*
+3366ff
+3333ff
+000099
+333399
+330099
+6666cc
+9999ff
+6633ff
+                                                                                                                  cccccc
+c0c0c0
+999999
+*/
+BODY { 
+ color: navy;
+ background:  #969696; 
+ // background:  #ffffff; 
+ font-family:  Verdana, Arial, Helvetica, "sans-serif";
+ font-weight: normal;
+ font-size: normal;	       
+ // font-size : 10pt;
+ margin: 2em; 
+} 
+//	margin-right: 1em;
+
+td.soft { background: rgb(74,112,139); color: #ffffff; }
+// cadetBlue rgb(95,158,160)
+
+
+div.box { 
+	background: #0000ff; 
+	border: solid; 
+	border-width: thin; 
+	width: 100%; 
+}
+
+div.color {
+               background: #6969ff;
+               padding: 0.5em;
+               border: none;
+             }
+
+
+div.ste {
+        background: #393939;
+	border: 5px solid;
+	font-family: comic; 
+	font-size: 16px;
+	border-width: thin; 
+	width:8em;
+	position: absolute;
+	left: 5px;
+	right: 105px;
+	top: 100px;
+	bottom: 300px;
+	//margin: 10px;
+	background-color: red;
+	//z-index:0;
+	//clip: rect(0,0,50,50);
+}
+
+
+input, option
+        {
+                border-color:#000000;
+                border-width:1;
+                font-family:tahoma,verdana, Helvetica;
+                font-size:10;
+                background-color:#ADADAD;
+                color:#000000;
+        }
+        select
+        {
+                border-color:#000000;
+                border-width:1;
+                font-family:Arial, Helvetica;
+                font-size:12px;
+                color:#000000;
+                background-color:#ADADAD;
+        }
+        textarea
+        {
+                border-color:#000000;
+                border-width:1;
+                overflow:hidden;
+                font-family:tahoma,Arial, Helvetica;
+                font-size:12;
+                color:#000000;
+                background-color:#ADADAD;
+        }
+
+input.submit {
+   background-color: #ADADAD;
+   color: #000000;
+   font-weight: bold;
+   font-size:16;
+  }
+
+
+
+dd {font-family: verdana, arial, sans-serif; font-size:10pt}
+
+tr {background: transparent; color:navy}
+td {font-family: verdana, arial, sans-serif; font-size:10pt; color: navy;}
+td.head { background: #333399; text-align: left; font-family: bold; font-size:10pt; color: white; }
+th {font-family: verdana, arial, sans-serif; font-size:10pt; background:navy; color:lime}
+
+/**
+td, th { 
+  font-family: helvetica; 
+}
+**/
+
+td.alert { background: orange }
+
+td.d { background: #aaaaff }
+td.l { background: #e3e3e3 }
+
+/* belli ma scuri
+tr.e { background: #696969 }
+tr.o { background: #778899 }
+*/
+
+tr.e { background: #a6a6a6 }
+tr.o { background: #969696 }
+
+tr.e { background: #a6a6a6 }
+tr.o { background: #6666cc }
+
+table {	color: navy; }
+
+a.white   { color: #fff; text-align: center; }
+A:hover   { color: orange;
+     Background-Color: lime;
+     Text-Decoration: underline }
+
+a { color: #34a }
+A:active  { color: #56a; }
+A:visited  { color: #56a; }
+
+a.red { color : red }
+a.teal { color : teal }
+a.yellow { color : #ffff00 }
+a.pink { color : blue; font-size: 8pt; }
+a.bar { color : #11efef }
+
+.desctit {
+	font-size: large; 
+	background: navy;
+	color: orange; 
+	text-align: center;	
+	font-family: lucida, verdana,arial,helvetica, sans-serif; 
+}
+
+
+#tit {
+font-size:180%; 
+color:blue; 
+text-align: center;
+font-size: x-large;
+font-family: palatino, meath, helvetica, serif;
+}
+
+#tra {font-size:100%; color:yellow; text-align: center}
+#pos {font-size:100%; color:green; text-align: center}
+#str {font-size:100%; color:navy; text-align: center}
+#ov {font-size:100%; color:teal; text-align: center}
+#prezzi {font-size:200%; color:orange; text-align: center}
+#note {
+	font-size: small; 
+	color:#aaaaaa; 
+	/* text-align: center */
+	}
+
+
+.offerte { font-size:120%; background: yellow; color: orange; }
+
+
+
+

@@ -1,0 +1,15 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Nome:</b>
+  <%= @campi.nome %>
+</p>
+
+<p>
+  <b>S:</b>
+  <%= @campi.s %>
+</p>
+
+
+<%= link_to 'Edit', edit_campi_path(@campi) %> |
+<%= link_to 'Back', campis_path %>

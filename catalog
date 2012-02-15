@@ -59,39 +59,52 @@ my @dirs = ();
 # deve essere globale perchè all'interno di wanted!!!! BAH!!!
 my @sql=(); # l'array del sql privo di "insert into directory "
 
-my $dbh = DBI->connect("DBI:mysql:database=catalog;host=localhost",'ste','ste');
+my $dbh = DBI->connect("DBI:mysql:database=catalog",'ste','ste');
 my $opt_d=0;			# debug
 
 my $catalog = 'ste';
 my $schema = 'catalog';
 
-#
-# lettura del file di configurazione
-#
-open FH, "catalog.conf" or die "can't open conf";
 
-#    print "label: xxx\n";
-#    print "+dir01\n";
-#    print "+dir02\n";
+xxx_main_xxx();
+exit;
 
-while(<FH>) {
-  $label = $1 if (m/label: (.*)$/);
-  if (m/^\+(.*)/) {
-    push(@dirs, $1);
-  }
+
+
+
+
+
+
+sub readConfiguration {
+	#
+	# lettura del file di configurazione
+	#
+	open FH, "catalog.conf" or die "can't open conf";
+	
+	#    print "label: xxx\n";
+	#    print "+dir01\n";
+	#    print "+dir02\n";
+	
+	while(<FH>) {
+	  $label = $1 if (m/label: (.*)$/);
+	  if (m/^\+(.*)/) {
+	    push(@dirs, $1);
+	  }
+	}
+	close FH;
+	
+	#
+	# solo x debug, riscrive il conf
+	#
+	if (1) {
+	  print "label: ".$label."\n";
+	  foreach my $d (@dirs) {
+	    print $d."\n";
+	  }
+	}
+	die ("label") unless ( $label );
+	
 }
-close FH;
-
-#
-# solo x debug, riscrive il conf
-#
-if (1) {
-  print "label: ".$label."\n";
-  foreach my $d (@dirs) {
-    print $d."\n";
-  }
-}
-die ("label") unless ( $label );
 
 
 my $memo = qq(
@@ -101,39 +114,45 @@ select * from image i
   join volumes v on v.id=volumes_id
 );
 
-my @p;
 
-my $basedir = qq(/Users/stefanobrozzi/Pictures/);
+sub short_and_wrong_hack {
+	
+	my @p = ();
+	
+	my $basedir = qq(/Users/stefanobrozzi/Pictures/);
+	
+	File::Find::find({wanted => \&findfiles}, $basedir);
+	
+	
+	my $denorm_sql = qq(insert into denorm (label,basedir,dir,fname) values (?,?,?,?));
+	my $sth = $dbh->prepare($denorm_sql);
+	
+	foreach my $f (@p) {
+	  print $f->{'dir'}." ".$f->{'fname'}."\n";
+	  $sth->execute($label, $basedir, $f->{'dir'}, $f->{'fname'});
+	}
+	
+	
+	sub findfiles {
+	    my ($dev,$ino,$mode,$nlink,$uid,$gid);
+	
+	    (($dev,$ino,$mode,$nlink,$uid,$gid) = lstat($_)) &&
+	    -f _
+	    && push @p,getHash($File::Find::dir, $_);
+	}
+	
+	
+	sub getHash {
+	  my ($dir, $fname) = @_;
+	  my $h = {};
+	  $h->{'fname'} = $fname;
+	  $h->{'dir'} = $dir;
+	  return $h;
+	}
+	
 
-File::Find::find({wanted => \&findfiles}, $basedir);
+} # short and wrong hack
 
-
-my $denorm_sql = qq(insert into denorm (label,basedir,dir,fname) values (?,?,?,?));
-my $sth = $dbh->prepare($denorm_sql);
-
-foreach my $f (@p) {
-  print $f->{'dir'}." ".$f->{'fname'}."\n";
-  $sth->execute($label, $basedir, $f->{'dir'}, $f->{'fname'});
-}
-
-
-sub findfiles {
-    my ($dev,$ino,$mode,$nlink,$uid,$gid);
-
-    (($dev,$ino,$mode,$nlink,$uid,$gid) = lstat($_)) &&
-    -f _
-    && push @p,getHash($File::Find::dir, $_);
-}
-
-sub getHash {
-  my ($dir, $fname) = @_;
-  my $h = {};
-  $h->{'fname'} = $fname;
-  $h->{'dir'} = $dir;
-  return $h;
-}
-
-exit;
 
 
 #
@@ -143,14 +162,18 @@ exit;
 #
 # 
 #
-sub xxx {
+sub xxx_main_xxx {
 
+  my $label=qq(portatile);
+  my @dirs = qw(/Users/stefanobrozzi/Pictures);
+  
   # TODO: replace should be good
-  DeleteOldRecords( $label );
+  ## # DeleteOldRecords( $label );
+  # voglio tenere i vecchi record x verificare se correttamente backuppati
   my $vid = InsertVolumes($label);
 
   foreach my $d (@dirs) {
-    @sql = ();  
+    @sql = (); # ehm: globale o quasi  
     print "directory->".$d."\n";
     InsertDir( $d, $vid );
   }
@@ -422,3 +445,14 @@ sub wanted {
 }
 
 #
+
+
+sub main {
+	#
+	# legge il .conf
+	# volumes
+	# 
+	
+}
+
+

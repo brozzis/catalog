@@ -29,7 +29,10 @@ use DBI;
 # use Filesys::Df;
 use Digest::MD5 qw(md5_hex);
 
-# use Image::ExifTool;
+use exif;
+
+my $catalog = 'ste';
+my $schema = 'catalog';
 
 # caricati ma non utilizzati... verranno comodi!!!
 # use DateTime;
@@ -62,10 +65,7 @@ my @sql=(); # l'array del sql privo di "insert into directory "
 my $dbh = DBI->connect("DBI:mysql:database=catalog",'ste','ste');
 my $opt_d=0;			# debug
 
-my $catalog = 'ste';
-my $schema = 'catalog';
-
-
+short_and_wrong_hack();
 xxx_main_xxx();
 exit;
 
@@ -115,10 +115,14 @@ select * from image i
 );
 
 
+
+
 sub short_and_wrong_hack {
 	
-	my @p = ();
-	
+	our @p = ();
+
+	# FIXME	
+	my $label = "macbook";
 	my $basedir = qq(/Users/stefanobrozzi/Pictures/);
 	
 	File::Find::find({wanted => \&findfiles}, $basedir);
@@ -128,8 +132,9 @@ sub short_and_wrong_hack {
 	my $sth = $dbh->prepare($denorm_sql);
 	
 	foreach my $f (@p) {
-	  print $f->{'dir'}." ".$f->{'fname'}."\n";
-	  $sth->execute($label, $basedir, $f->{'dir'}, $f->{'fname'});
+		my $d = $f->{'dir'} =~ s/${basedir}//;
+	  	#Êprint $f->{'dir'}." ".$f->{'fname'}."\n";
+	  	$sth->execute($label, $basedir, $d, $f->{'fname'});
 	}
 	
 	
@@ -156,6 +161,56 @@ sub short_and_wrong_hack {
 
 
 #
+# MVC mia nonna... crea parte della str sql qui
+# TODO: Bleah
+#
+sub wanted {
+    my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks);
+    
+# non tutte le variabili sono valorizzate, come mai???
+    (($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = lstat($_)) &&
+      -d _ 
+	##	&& (int(-M _) < $time_lapse)
+	&& push(@sql, sprintf("(volid, base_dir, bd_id, dir) values (?, ?, ?, '%s/%s' );", 
+			      escape($File::Find::dir), escape($_) )) if (!($File::Find::dir =~ m/Previews\.lrdata/i || $File::Find::dir =~ m/recycler/i || $File::Find::dir =~ m/system volume information/i));
+# ---- qui ancora con epoch...
+#	&& push(@sql, sprintf("(volid, base_dir, bd_id, dir, name, epoch) values (?, ?, ?, '%s','%s', %f);", 
+#		 $dir, $_, $^T+-M _)) if (!($dir =~ m/recycler/i || $dir =~ m/system volume information/i));
+}
+
+
+
+
+sub wanted2 {
+    my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks);
+    
+# non tutte le variabili sono valorizzate, come mai???
+    (($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = lstat($_)) &&
+      -d _ 
+	##	&& (int(-M _) < $time_lapse)
+	&& push(@sql, sprintf("(volid, base_dir, bd_id, dir) values (?, ?, ?, '%s/%s' );", 
+			      escape($File::Find::dir), escape($_) )) if (!($File::Find::dir =~ m/Previews\.lrdata/i || $File::Find::dir =~ m/recycler/i || $File::Find::dir =~ m/system volume information/i));
+# ---- qui ancora con epoch...
+#	&& push(@sql, sprintf("(volid, base_dir, bd_id, dir, name, epoch) values (?, ?, ?, '%s','%s', %f);", 
+#		 $dir, $_, $^T+-M _)) if (!($dir =~ m/recycler/i || $dir =~ m/system volume information/i));
+}
+
+
+
+
+sub xx {
+	my $file="";
+    open(FILE, $file) or die "Can't open $file: $!";
+    binmode(FILE);
+    my $MD5_CODE = Digest::MD5->new->addfile(*FILE)->hexdigest;
+
+    my($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = stat($file);
+
+    # $sth->execute( $file, $MD5_CODE, $size, $LABEL );
+	
+}
+
+#
 # TODO: verifica anche su @dirs...
 #
 
@@ -178,6 +233,7 @@ sub xxx_main_xxx {
     InsertDir( $d, $vid );
   }
 
+	# FIXME: wow
   $dbh->disconnect();
 }
 
@@ -294,48 +350,47 @@ sub InsertVolumes {
 
 
 sub InsertDir() {
+	
+	  my ($starting_dir, $vol_id) = @_;
+	
+	  # questa verifica è troppo tardi: 
+	  # ha già inserito nel db... 
+	  # a meno di nn farlo transazionale
+	  die ("dir non esistente??") unless ( $starting_dir && -d $starting_dir );
+	  die ("vid??") unless ( $vol_id );
+	
+	  # for the convenience of &wanted calls, including -eval statements:
+	  use vars qw/*name *dir *prune/;
+	  *name   = *File::Find::name;
+	  *dir    = *File::Find::dir;
+	  *prune  = *File::Find::prune;
 
-  my ($starting_dir, $vol_id) = @_;
-
-  # questa verifica è troppo tardi: 
-  # ha già inserito nel db... 
-  # a meno di nn farlo transazionale
-  die ("dir non esistente??") unless ( $starting_dir && -d $starting_dir );
-  die ("vid??") unless ( $vol_id );
-
-
-  # for the convenience of &wanted calls, including -eval statements:
-  use vars qw/*name *dir *prune/;
-  *name   = *File::Find::name;
-  *dir    = *File::Find::dir;
-  *prune  = *File::Find::prune;
-
-  # 
-  # questo lo lascio... in realtÃ  non riesco 
-  # a cancellare i vecchi record. 
-  # con una FK dovrei riuscirci...
-  #
-  my $sqlstr = "insert into basedir (base_dir) values (?)";
-  my $sth = $dbh->prepare($sqlstr);
-  $sth->execute($starting_dir);
-  my $basedir_id = $dbh->last_insert_id($catalog, $schema, 'volumes', 'id');
-
-  # Traverse desired filesystems
-  File::Find::find({wanted => \&wanted}, $starting_dir);
-
-  foreach my $s (@sql) {
-    # proposta: mantiene i record ma li "rinomina"
-    # "update directory set oldvolid = volid, volid = NULL";
-    my $sqlstr = "insert into directory ".$s;
-    my $sth = $dbh->prepare($sqlstr);
-    $sth->execute($vol_id, $starting_dir, $basedir_id);
-
-    #
-    InsertImage($starting_dir, $basedir_id);
-
-    # print $sqlstr;
-    # TODO: update ... SET dir = substr(dir, length(base_dir)) where  vol_id = $vol_id 
-  }
+	  # 
+	  # questo lo lascio... in realtÃ  non riesco 
+	  # a cancellare i vecchi record. 
+	  # con una FK dovrei riuscirci...
+	  #
+	  my $sqlstr = "insert into basedir (base_dir) values (?)";
+	  my $sth = $dbh->prepare($sqlstr);
+	  $sth->execute($starting_dir);
+	  my $basedir_id = $dbh->last_insert_id($catalog, $schema, 'volumes', 'id');
+	
+	  # Traverse desired filesystems
+	  File::Find::find({wanted => \&wanted}, $starting_dir);
+	
+	  foreach my $s (@sql) {
+		    # proposta: mantiene i record ma li "rinomina"
+		    # "update directory set oldvolid = volid, volid = NULL";
+		    my $sqlstr = "insert into directory ".$s;
+		    my $sth = $dbh->prepare($sqlstr);
+		    $sth->execute($vol_id, $starting_dir, $basedir_id);
+		
+		    #
+		    InsertImage($starting_dir, $basedir_id);
+		
+		    # print $sqlstr;
+		    # TODO: update ... SET dir = substr(dir, length(base_dir)) where  vol_id = $vol_id 
+	  }
 
 }
 
@@ -354,8 +409,11 @@ sub InsertImage {
     next if ( -d $_);
     next unless ( -f $_ );
     $sth->execute($_, md5_hex($_));
+	if (m/\.CR.$/i) { exif::readImage($_); }
     printf "\t%s - %s\n", $_, md5_hex($_) if ($opt_d);
   }
+  	
+  
 }
 
 
@@ -388,9 +446,6 @@ Software      );
 
 
 
-sub InsertExif {
-my $exif = new Image::ExifTool;
-}
 
 #
 # funzioni di utilitÃ 
@@ -424,35 +479,4 @@ sub diskSpace {
   return $retval;
 
 }
-
-
-#
-# MVC mia nonna... crea parte della str sql qui
-#Â TODO: Bleah
-#
-sub wanted {
-    my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks);
-    
-# non tutte le variabili sono valorizzate, come mai???
-    (($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = lstat($_)) &&
-      -d _ 
-	##	&& (int(-M _) < $time_lapse)
-	&& push(@sql, sprintf("(volid, base_dir, bd_id, dir) values (?, ?, ?, '%s/%s' );", 
-			      escape($File::Find::dir), escape($_) )) if (!($File::Find::dir =~ m/Previews\.lrdata/i || $File::Find::dir =~ m/recycler/i || $File::Find::dir =~ m/system volume information/i));
-# ---- qui ancora con epoch...
-#	&& push(@sql, sprintf("(volid, base_dir, bd_id, dir, name, epoch) values (?, ?, ?, '%s','%s', %f);", 
-#		 $dir, $_, $^T+-M _)) if (!($dir =~ m/recycler/i || $dir =~ m/system volume information/i));
-}
-
-#
-
-
-sub main {
-	#
-	# legge il .conf
-	# volumes
-	# 
-	
-}
-
 

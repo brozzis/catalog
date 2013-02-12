@@ -221,6 +221,8 @@ sub groupBY {
 			push(@v,$info->{$k});
 		} 
 
+		# TODO: aggiungere dirid
+		# TODO: size
 		my $sql=sprintf "insert into exif (%s) values ('%s');\n", join(',',@f), join("','",@v); 
     	my $sth = $dbh->prepare($sql);
     	$sth->execute or die;
@@ -269,11 +271,11 @@ sub groupBY {
 
 sub readImage {
 
-	my $fileimg = $_;
+	my ($fileimg) = @_;
 	return if (! -f "$fileimg");
 	print "$fileimg\n";
 	
-	my $info = ImageInfo("$fileimg") or die;
+	my $info = ImageInfo($fileimg) or die;
 	# 		dump($info);
 
 	my $id = InsertImg($info);
@@ -285,8 +287,8 @@ sub readImage {
     
 	if (defined $info->{ThumbnailImage}) {
 
-    	my $sth= $dbh->prepare("INSERT INTO thumbs(id, thumb) VALUES (?,?) ");
-		$sth->execute($id, ${$info->{ThumbnailImage}}) or die;
+    	my $sth= $dbh->prepare("INSERT INTO thumbs(id, size, thumb) VALUES (?,?,?) ");
+		$sth->execute($id, -s $fileimg, ${$info->{ThumbnailImage}}) or die;
 		$sth->finish;
    	}
    

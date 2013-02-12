@@ -22,7 +22,9 @@
 #
 # aggiungere una tabella per i file + exif
 #
+use warnings;
 use strict;
+
 use File::Find ();
 use File::stat;
 use DBI;
@@ -40,9 +42,11 @@ my $schema = 'catalog';
 # use DateTime::Format::MySQL;
 
 
-my @all__ext = qw(BridgeCache BridgeCacheT BridgeSort CCH CR2 CRW DS_Store JPG THM WAV bc bct data db hdr iPhoto id inf ipmeta ipspot ipspot_update jpg localized lrcat lrprev pano psd thm tif txt xml xmp); 
+my @all__ext = qw(BridgeCache BridgeCacheT BridgeSort CCH CR2 CRW DS_Store JPG THM WAV bc bct data db 
+	hdr iPhoto id inf ipmeta ipspot ipspot_update jpg localized lrcat lrprev pano psd thm tif txt xml xmp); 
 
-my @ignored_ext = qw(BridgeCache BridgeCacheT BridgeSort CCH DS_Store THM bc bct data db iPhoto id inf ipmeta ipspot ipspot_update localized lrcat lrprev pano thm txt xml xmp);
+my @ignored_ext = qw(BridgeCache BridgeCacheT BridgeSort CCH DS_Store THM bc bct data db iPhoto 
+	id inf ipmeta ipspot ipspot_update localized lrcat lrprev pano thm txt xml xmp);
 
 my @ok_ext = qw(CR2 CRW  JPG  WAV  hdr  jpg jpeg pano psd  tif tiff);
 
@@ -68,9 +72,10 @@ my $opt_d=0;			# debug
 my @dirs = qw(/Users/stefanobrozzi/Pictures/);
 
   foreach my $d (@dirs) {
-	short_and_wrong_hack($d, "macbook");
+	# short_and_wrong_hack($d, "macbook");
 	xxx_main_xxx($d, "macbook");
-  }
+  }  
+  
 exit;
 
 
@@ -122,30 +127,31 @@ select * from image i
 );
 
 
-=pod
 
-data una dir 
+sub xxx 
+{
+	my ($label, $basedir) = @_;
+	my @files = getFilenames($basedir);
+	my $id = InsertBase($label, $basedir);
 
-=cut
-
-sub short_and_wrong_hack {
+	foreach my $f (@files) {
+		InsertImage($id, $f->{'dir'}.'/'.$f->{'fname'});
+#		my ($d) = $f->{'dir'};
+#		$d =~ s/${basedir}//;
+#	  	#Êprint $f->{'dir'}." ".$f->{'fname'}."\n";
+	}
+}
 	
-	my ($basedir, $label) = @_;
+
+#
+# ritorna la lista dei files 
+#
+sub getFilenames {
+	
+	my ($basedir) = @_;
 	our @p = ();
 
 	File::Find::find({wanted => \&findfiles}, $basedir);
-	
-	
-	my $denorm_sql = qq(insert into denorm (label,basedir,dir,fname) values (?,?,?,?));
-	my $sth = $dbh->prepare($denorm_sql);
-	
-	foreach my $f (@p) {
-		InsertImage($f->{'dir'}.'/'.$f->{'fname'});
-		my ($d) = $f->{'dir'};
-		$d =~ s/${basedir}//;
-	  	#Êprint $f->{'dir'}." ".$f->{'fname'}."\n";
-	  	$sth->execute($label, $basedir, $d, $f->{'fname'});
-	}
 	
 	
 	sub findfiles {
@@ -165,11 +171,39 @@ sub short_and_wrong_hack {
 	  return $h;
 	}
 	
+	return @p;
+} 
 
+
+
+
+=pod
+
+data una dir 
+
+=cut
+
+sub InsertDir {
+	
+	my ($basedir, $label) = @_;
+	my @p = getFilenames($basedir);
+	my $num=@p;
+	print "ho trovato $num files\n";
+	my $denorm_sql = qq(insert into denorm (label,basedir,dir,fname) values (?,?,?,?));
+	my $sth = $dbh->prepare($denorm_sql);
+	
+	foreach my $f (@p) {
+		InsertImage(999, $f->{'dir'}.'/'.$f->{'fname'});
+		my ($d) = $f->{'dir'};
+		$d =~ s/${basedir}//;
+	  	#Êprint $f->{'dir'}." ".$f->{'fname'}."\n";
+	  	$sth->execute($label, $basedir, $d, $f->{'fname'});
+	}
+	
 } # short and wrong hack
 
 
-
+=pod
 #
 # MVC mia nonna... crea parte della str sql qui
 # TODO: Bleah
@@ -182,7 +216,10 @@ sub wanted {
       -d _ 
 	##	&& (int(-M _) < $time_lapse)
 	&& push(@sql, sprintf("(volid, base_dir, bd_id, dir) values (?, ?, ?, '%s/%s' );", 
-			      escape($File::Find::dir), escape($_) )) if (!($File::Find::dir =~ m/Previews\.lrdata/i || $File::Find::dir =~ m/recycler/i || $File::Find::dir =~ m/system volume information/i));
+			      escape($File::Find::dir), escape($_) )) 
+		if (!($File::Find::dir =~ m/Previews\.lrdata/i || 
+					$File::Find::dir =~ m/recycler/i || 
+					$File::Find::dir =~ m/system volume information/i));
 # ---- qui ancora con epoch...
 #	&& push(@sql, sprintf("(volid, base_dir, bd_id, dir, name, epoch) values (?, ?, ?, '%s','%s', %f);", 
 #		 $dir, $_, $^T+-M _)) if (!($dir =~ m/recycler/i || $dir =~ m/system volume information/i));
@@ -199,13 +236,16 @@ sub wanted2 {
       -d _ 
 	##	&& (int(-M _) < $time_lapse)
 	&& push(@sql, sprintf("(volid, base_dir, bd_id, dir) values (?, ?, ?, '%s/%s' );", 
-			      escape($File::Find::dir), escape($_) )) if (!($File::Find::dir =~ m/Previews\.lrdata/i || $File::Find::dir =~ m/recycler/i || $File::Find::dir =~ m/system volume information/i));
+			      escape($File::Find::dir), escape($_) )) 
+		if (!($File::Find::dir =~ m/Previews\.lrdata/i || 
+			$File::Find::dir =~ m/recycler/i || 
+			$File::Find::dir =~ m/system volume information/i));
 # ---- qui ancora con epoch...
 #	&& push(@sql, sprintf("(volid, base_dir, bd_id, dir, name, epoch) values (?, ?, ?, '%s','%s', %f);", 
 #		 $dir, $_, $^T+-M _)) if (!($dir =~ m/recycler/i || $dir =~ m/system volume information/i));
 }
 
-
+=cut
 
 
 sub xx {
@@ -233,7 +273,7 @@ sub xxx_main_xxx {
   # TODO: replace should be good
   ## # DeleteOldRecords( $label );
   # voglio tenere i vecchi record x verificare se correttamente backuppati
-  my $vid = InsertVolumes($label);
+  my $vid = InsertVolumes($label, $dir);
 
     @sql = (); # ehm: globale o quasi  
     print "directory->".$dir."\n";
@@ -290,10 +330,25 @@ sub DeleteOldRecords {
 }
 
 
+=pod
+
+sub InsertBase {
+	my ($label, $basedir) = @_;
+	
+	my $denorm_sql = qq(insert into bases (label,basedir) values (?,?));
+	my $sth = $dbh->prepare($denorm_sql);
+	$sth->execute($label, $basedir);
+	my $lastid = $dbh->{'mysql_insert_id'};
+
+	return $lastid;	
+}
+
+=cut
+
 
 sub InsertVolumes {
 
-  my $vol_name = shift(@_);
+  my ($vol_name, $basedir) = @_;
 
   my $found=0;
   my $vol_id ;
@@ -302,11 +357,13 @@ sub InsertVolumes {
     #
     # cerca l'occrrenza esatta
     #
-    my $sth = $dbh->prepare("SELECT id, last FROM volumes where volname=?");
-    $sth->execute($vol_name);
+    my $sth = $dbh->prepare("SELECT id, last FROM volumes where volname=? and base_dir=?");
+    $sth->execute($vol_name, $basedir);
     while (my $ref = $sth->fetchrow_hashref()) {
-      print "Found a row: id = $ref->{'last'}\n";
+      print "Found a row: id = $ref->{'id'} [$ref->{'last'}]\n";
       $vol_id=$ref->{'id'};
+      
+      # TODO: sistemare la differenza
       $time_lapse=$^T-$ref->{'last'};
       # delta_days();
       $found=1;
@@ -339,8 +396,8 @@ sub InsertVolumes {
     #
     if (!$found) {
       # TODO: transazionale ???
-      my $sth = $dbh->prepare("insert into volumes (volname, last) values (?, now())");
-      $sth->execute($vol_name);
+      my $sth = $dbh->prepare("insert into volumes (volname, base_dir, last) values (?, ?, now())");
+      $sth->execute($vol_name, $basedir);
       my $rv = $dbh->last_insert_id($catalog, $schema, 'volumes', 'id');
       $vol_id=$rv;
       $time_lapse = 1000; # TODO: penso che questo riduca l'efficienza della sub wanted()
@@ -355,16 +412,18 @@ sub InsertVolumes {
   }
 
 
-
+=pod
 sub InsertDir() {
 	
 	my ($starting_dir, $vol_id) = @_;
-	
-	
+		
 	short_and_wrong_hack($starting_dir, $vol_id);
 	
 	return;
-	
+}
+=cut
+
+=pod	
 	
 	  # questa verifica è troppo tardi: 
 	  # ha già inserito nel db... 
@@ -410,7 +469,7 @@ sub InsertDir() {
 # ma pensa avanti ed è possibile mettere un exifReader
 #
 # FIXME: non viene chiamata. ora non calcola md5 della immagine
-sub InsertImageInDir {
+sub off_InsertImageInDir {
   my ($dirname, $did) = @_;
 	
   my $sql=qq(insert into image (filename, md5, dir) values (?,?,$did));
@@ -427,20 +486,22 @@ sub InsertImageInDir {
   
 }
 
+=cut
+
+#
+#
+#
 sub InsertImage {
-  my ($fname) = @_;
+  my ($id, $fname) = @_;
 
     return unless ( -f $fname );
   
-  # FIXME: ci vuole il riferimento al record corretto
-  my $did=1;
-	
-  my $sql=qq(insert into image (filename, md5, dir, size) values (?,?,?,?));
-  my $sth = $dbh->prepare($sql);
+    my $sql=qq(insert into image (filename, md5, dir, size) values (?,?,?,?));
+    my $sth = $dbh->prepare($sql);
 
-    $sth->execute($fname, md5_hex($fname), $did, -s $fname);
+    $sth->execute($fname, md5_hex($fname), $id, -s $fname);
 
-	if ($fname =~ m/\.CR.$/i) { exif::readImage($fname); }
+#	if ($fname =~ m/\.CR.$/i) { exif::readImage($fname); }
 
     printf "\t%s - %s\n", $fname, md5_hex($fname) if ($opt_d);
   	

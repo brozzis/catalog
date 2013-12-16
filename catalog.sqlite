@@ -1,0 +1,13 @@
+DROP TABLE "catalog";
+CREATE TABLE "catalog" (
+  "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+  "d" varchar(255) DEFAULT NULL,
+  "f" varchar(255) DEFAULT NULL,
+  "size" decimal(10,0) DEFAULT NULL,
+  "f_date" int(11) DEFAULT NULL,
+  "flag_movie" tinyint(1) DEFAULT '0',
+  "hash" varchar(32) DEFAULT NULL,
+  "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "vid" int(11) DEFAULT NULL
+);
+CREATE INDEX "catalog_IX_hash" ON "catalog" ("hash");

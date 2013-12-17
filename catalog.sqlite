@@ -1,5 +1,4 @@
-DROP TABLE "catalog";
-CREATE TABLE "catalog" (
+CREATE TABLE IF NOT EXISTS "catalog" (
   "id" INTEGER PRIMARY KEY AUTOINCREMENT,
   "d" varchar(255) DEFAULT NULL,
   "f" varchar(255) DEFAULT NULL,

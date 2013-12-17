@@ -11,15 +11,19 @@ my @set_files;
 
 my $basedir = '/Volumes/TERAMOVIE';
 
-$basedir = qq(/Volumes/Seagate Exp);
+$basedir = qq(/Users/ste/Downloads);
+
+
+my %exts = ( 
+    'pics' => qw(jpg jpeg png gif),  
+    'video' => qw(avi divx mpg mpeg), 
+    'music' => qw(mp3 mp4),
+    'raw' => qw(crw cr2)
+    );
 
 # $basedir = '/Users/stefanobrozzi/Miro';
 #Ê$basedir = '/Users/stefanobrozzi/Music';
 
-
-
-
-my $vid = 1;
 
 # Set the variable $File::Find::dont_use_nlink if you're using AFS,
 # since AFS cheats.
@@ -57,15 +61,83 @@ $dbh = DBI->connect(
     "dbi:SQLite:dbname=$basedir/catalog.db", 
     "",                          
     "",                          
-    { RaiseError => 1 },         
+    { RaiseError => 1  },         
 ) or die $DBI::errstr;
 
 
 
+
+eval {
+    $dbh->do( qq(CREATE TABLE IF NOT EXISTS "catalog" (
+  "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+  "d" varchar(255) DEFAULT NULL,
+  "f" varchar(255) DEFAULT NULL,
+  "size" decimal(10,0) DEFAULT NULL,
+  "f_date" int(11) DEFAULT NULL,
+  "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ));
+
+ #   $dbh->do(qq(CREATE INDEX "catalog_IX_hash" ON "catalog" ("hash"));));
+
+    $dbh->do(qq(create table if not exists control ("id" INTEGER PRIMARY KEY AUTOINCREMENT, "label" varchar(32), dts timestamp, dte timestamp) ));
+
+};
+
+
+
+# insertFiles();
+
+my $res = readCatalog('avi');
+
+
+foreach my $id (keys %$res) {
+    print $$res{$id}{'f'}."\n";
+
+}
+exit;
+
+
 # TODO: leggere la data dell'ultima lettura
-#ÊTODO: fare la differenza  di data
+# TODO: fare la differenza  di data
 # TODO: scrivere l'attuale
-#ÊTODO: aggiungere l'opzione per la  
+# TODO: aggiungere l'opzione per la  
+
+
+sub getRecordPerID {
+    my ($id) = @_;
+    my $sql = qq(select * from catalog where id=?);
+
+    print "$sql, $id\n";
+    my $sth = $dbh->prepare($sql);
+    $sth->execute($id);
+    my $href = $sth->fetchall_arrayref($id) ;
+
+    $sth->finish();
+
+    return $href;
+}
+
+
+
+sub readCatalog {
+    my ($ext) = @_;
+    my $sql = qq(select * from catalog where f like "%$ext" );
+
+    my $sth = $dbh->prepare($sql);
+    $sth->execute();
+#   my @result = $sth->fetchrow_array();
+    my $href = $sth->fetchall_hashref('id') ;
+
+    $sth->finish();
+#    $results = $dbh->selectall_hashref($sql, 'id');
+#    foreach my $id (keys %$results) {
+#        print "Value of ID $id is $results->{$id}->{val}\n";
+#    }
+
+
+    return $href;
+}
+
 
 =pod
 
@@ -84,19 +156,31 @@ $sth2->execute('tera', $basedir, $row->{"id"});
 
 =cut
 
-# my $sql=qq(insert into mp3_files (size, md5, title) values (?,?,?));
-my $sql=qq(insert into catalog (vid, d, f, size, f_date) values (?,?,?,?,?));
-my $ins = $dbh->prepare($sql);
 
-my $i=0;
+#
+#
+#
+sub insertFiles {
 
-foreach my $f (@set_files) {
-	$ins->execute($vid, $f->{"dir"}, $f->{"short"}, $f->{"size"}, stat($f->{"dir"}."/".$f->{"short"})->mtime);
-	$i++;
+    # my $sql=qq(insert into mp3_files (size, md5, title) values (?,?,?));
+    my $sql=qq(insert into catalog (d, f, size, f_date) values (?,?,?,?));
+    my $ins = $dbh->prepare($sql);
+
+    my $i=0;
+
+    $dbh->{AutoCommit} = 1;
+    $dbh->begin_work;  
+    $dbh->do("PRAGMA synchronous = OFF");
+    $dbh->do("PRAGMA journal_mode=MEMORY");
+    foreach my $f (@set_files) {
+    	$ins->execute($f->{"dir"}, $f->{"short"}, $f->{"size"}, stat($f->{"dir"}."/".$f->{"short"})->mtime);
+    	$i++;
+    }
+
+    $dbh->commit;
+
+    printf "\nTerminato. Inseriti %d files.\n", $i;
 }
-
-printf "\nTerminato. Inseriti %d files.\n", $i;
-exit;
 
 
 sub wanted {

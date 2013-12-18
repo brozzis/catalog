@@ -1,0 +1,51 @@
+File Modification Date/Time     : 2012:02:05 14:25:30+01:00
+MIME Type                       : image/x-canon-cr2
+Make                            : Canon
+Camera Model Name               : Canon EOS-1Ds Mark II
+Modify Date                     : 2012:02:05 14:25:27
+Exposure Time                   : 1/640
+F Number                        : 8.0
+Exposure Program                : Aperture-priority AE
+ISO                             : 100
+Date/Time Original              : 2012:02:05 14:25:27
+Create Date                     : 2012:02:05 14:25:27
+Shutter Speed Value             : 1/664
+Aperture Value                  : 8.0
+Flash                           : Off, Did not fire
+Focal Length                    : 45.0 mm
+Canon Flash Mode                : Off
+Continuous Drive                : Continuous
+Focus Mode                      : One-shot AF
+Metering Mode                   : Evaluative
+Canon Exposure Mode             : Aperture-priority AE
+Max Focal Length                : 70 mm
+Min Focal Length                : 24 mm
+Max Aperture                    : 2.8
+Min Aperture                    : 23
+Auto ISO                        : 100
+Base ISO                        : 100
+Measured EV                     : 16.00
+Target Aperture                 : 8
+Target Exposure Time            : 1/645
+Exposure Compensation           : +1/3
+Auto Exposure Bracketing        : Off
+Camera Type                     : EOS High-end
+Canon Image Type                : Canon EOS-1Ds Mark II
+Serial Number                   : 314996
+Lens Type                       : Canon EF 24-70mm f/2.8L
+Shutter Button/AEL Button       : AE lock/AF
+Manual Tv/Av For M              : Tv=Control/Av=Main
+Exposure Level Increments       : 1/3-stop set, 1/3-stop comp.
+Canon Model ID                  : EOS-1Ds Mark II
+Shutter Count                   : 86885
+Image Size                      : 4992x3328
+Lens                            : 24.0 - 70.0 mm
+Lens ID                         : Canon EF 24-70mm f/2.8L
+Scale Factor To 35 mm Equivalent: 1.0
+Shooting Mode                   : Aperture-priority AE
+Shutter Speed                   : 1/640
+Focal Length                    : 45.0 mm (35 mm equivalent: 45.1 mm)
+Lens                            : 24.0 - 70.0 mm (35 mm equivalent: 24.0 - 70.1 mm)
+
+
+

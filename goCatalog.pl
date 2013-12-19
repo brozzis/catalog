@@ -7,11 +7,25 @@ use File::stat;
 use strict;
 use File::Find ();
 
+use Digest::MD5 qw(md5 md5_hex md5_base64);
+
+use Image::ExifTool qw(:Public);
+
 my @set_files;
 
 my $basedir = '/Volumes/TERAMOVIE';
 
-$basedir = qq(/Users/ste/Downloads);
+$basedir = qq(/Users/ste/Pictures);
+
+
+
+sub _Attempt_video
+{
+    my $f = qq(/Users/ste/Downloads/DSCF3094.AVI);
+    my @x = qw(Compression Description MIMEType ImageSize);
+    my $info = ImageInfo($f, @x);
+
+}
 
 
 my %exts = ( 
@@ -68,6 +82,7 @@ $dbh = DBI->connect(
 
 
 eval {
+#    $dbh->do( qq(drop TABLE  "catalog") );
     $dbh->do( qq(CREATE TABLE IF NOT EXISTS "catalog" (
   "id" INTEGER PRIMARY KEY AUTOINCREMENT,
   "d" varchar(255) DEFAULT NULL,
@@ -85,15 +100,21 @@ eval {
 
 
 
-# insertFiles();
+#  insertFiles();
 
-my $res = readCatalog('avi');
 
+my $res = readCatalog('cr2');
 
 foreach my $id (keys %$res) {
-    print $$res{$id}{'f'}."\n";
+    my $f = $$res{$id}{'d'}."/".$$res{$id}{'f'};
+    # print $f;
+    readRawImage($f);
+    print "\n";
 
 }
+
+
+
 exit;
 
 
@@ -181,6 +202,211 @@ sub insertFiles {
 
     printf "\nTerminato. Inseriti %d files.\n", $i;
 }
+
+
+
+
+
+sub readRawImage {
+
+
+    my ($f) = @_; # 
+    my @tags = qw(serComment Title ShutterSpeed Lens ISO CameraID Aperture Description ImageSize);
+
+    @tags = qw(ApertureValue
+    AutoExposureBracketing
+    AutoISO
+    BaseISO
+    CameraType
+    CanonExposureMode
+    CanonFlashMode
+    CanonImageType
+    CanonModelID
+    ContinuousDrive
+    CreateDate
+    ExposureCompensation
+    ExposureLevelIncrements
+    ExposureProgram
+    ExposureTime
+    FNumber
+    Flash
+    FocalLength
+    FocusMode
+    ISO
+    ImageSize
+    Lens
+    LensID
+    LensType
+    MIMEType
+    Make
+    MaxAperture
+    MaxFocalLength
+    MeasuredEV
+    MeteringMode
+    MinAperture
+    MinFocalLength
+    ModifyDate
+    SerialNumber
+    ShootingMode
+    ShutterCount
+    ShutterSpeed
+    ShutterSpeedValue
+    TargetAperture
+    TargetExposureTime);
+
+
+#        ShutterSpeedValue
+#        TargetAperture
+#        TargetExposureTime
+
+
+    my @imageTags = qw(
+        ApertureValue
+        CanonFlashMode
+        CreateDate
+        ExposureCompensation
+        ExposureTime
+        FNumber
+        Flash
+        FocalLength
+        FocusMode
+        ISO
+        ImageSize
+        MeasuredEV
+        ModifyDate
+        ShootingMode
+        ShutterCount
+        ShutterSpeed
+        );
+
+
+#    CanonExposureMode
+#    ExposureProgram
+
+    my @settingsTags = qw(
+    AutoExposureBracketing
+    CanonFlashMode
+    ContinuousDrive
+    ExposureLevelIncrements
+    Flash
+    FocusMode
+    ISO
+    MeteringMode
+    ShootingMode);
+
+
+    my @lensTags = qw(
+        Lens
+        LensID
+        LensType
+        MaxAperture
+        MaxFocalLength
+        MinAperture
+        MinFocalLength
+    );
+
+    my @cameraTags = qw(
+        CameraType
+        CanonImageType
+        CanonModelID
+        Make
+        SerialNumber
+    );
+
+
+=pod
+foreach my $tag (@x) {
+    # body...
+    print qq/\t"$tag"  varchar(30),\n/;
+}
+=cut
+
+
+
+
+    my $info = ImageInfo($f, @tags);
+    my %hash = %{ $info };
+
+    my $digest;
+
+    foreach my $t (@imageTags) {
+        if ($hash{'ShutterSpeed'} ne $hash{'ExposureTime'}) {
+
+        printf "%20s => %-30s\n", $t, $hash{$t};
+        }
+    }
+    return;
+
+    print " === all tags \n";
+#    dump(@tags);
+#    dump(@hash{@tags});
+
+    print join(':',@hash{@tags});
+    print qq(\n);
+    $digest = md5_hex(join(':',@hash{@tags}));
+ print $digest."\n";
+
+
+    print " === lens tags \n";
+#    dump(@lensTags);
+#    dump(@hash{@lensTags});
+    print join(':',@hash{@lensTags});
+    print qq(\n);
+    $digest = md5_hex(join(':',@hash{@lensTags}));
+ print $digest."\n";
+
+    print " === camera tags \n";
+#    dump(@cameraTags);
+#    dump(@hash{@cameraTags});
+    $digest = md5_hex(join(':',@hash{@cameraTags}));
+ print $digest."\n";
+
+
+    print " === image tags \n";
+#    dump(@imageTags);
+#    dump(@hash{@imageTags});
+    $digest = md5_hex(join(':',@hash{@imageTags}));
+ print $digest."\n";
+
+
+    exit;
+
+
+    # TODO: urgente : manca id immagine iniziale
+
+    my $info = ImageInfo($f, @tags);
+    my %hash = %{ $info };
+
+    my $keystr = (join ",\n        ", (@tags));
+    my $valstr = join ', ', (split(/ /, "? " x (scalar(@tags))));
+    my @values = @hash{@tags};
+
+    my $query = qq/
+        INSERT INTO exifRaw (
+            $keystr
+        )
+        VALUES (
+            $valstr
+        )
+    /;
+
+    my $sth = $dbh->prepare($query) 
+        or die "Can't prepare insert: ".$dbh->errstr()."\n";
+
+    $sth->execute(@values)
+        or die "Can't execute insert: ".$dbh->errstr()."\n";
+
+    #foreach my $tag (@x) {
+        # body...
+    #    print "$tag => ".$info->{$tag}."\n";
+    #}
+
+    #dump($info);
+
+
+
+}
+
 
 
 sub wanted {

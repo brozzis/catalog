@@ -17,11 +17,127 @@ my @set_files;
 my $cameras = {};
 my $settings = {};
 my $lenses = {};
+my $images = {};
 my $collider = {};
 
 
 
 my $dbh;
+
+
+
+
+my @tags = qw(serComment Title ShutterSpeed Lens ISO CameraID Aperture Description ImageSize);
+
+@tags = qw(
+    ApertureValue
+    AutoExposureBracketing
+    AutoISO
+    BaseISO
+    CameraType
+    CanonExposureMode
+    CanonFlashMode
+    CanonImageType
+    CanonModelID
+    ContinuousDrive
+    CreateDate
+    ExposureCompensation
+    ExposureLevelIncrements
+    ExposureProgram
+    ExposureTime
+    FNumber
+    Flash
+    FocalLength
+    FocusMode
+    ISO
+    ImageSize
+    Lens
+    LensID
+    LensType
+    MIMEType
+    Make
+    MaxAperture
+    MaxFocalLength
+    MeasuredEV
+    MeteringMode
+    MinAperture
+    MinFocalLength
+    ModifyDate
+    SerialNumber
+    ShutterCount
+    ShootingMode
+    ShutterSpeed
+    ShutterSpeedValue
+    TargetAperture
+    TargetExposureTime
+);
+
+
+#        ShutterSpeedValue
+#        TargetAperture
+#        TargetExposureTime
+#         ModifyDate
+
+
+my @imageTags = qw(
+    ApertureValue
+    CanonFlashMode
+    CreateDate
+    ExposureCompensation
+    ExposureTime
+    FNumber
+    Flash
+    FocalLength
+    FocusMode
+    ISO
+    ImageSize
+    MeasuredEV
+    ShootingMode
+    
+    ShutterSpeed
+    );
+
+
+my @Canon1Ds = qw(ShutterCount);
+
+#    CanonExposureMode
+#    ExposureProgram
+
+my @settingsTags = qw(
+    AutoExposureBracketing
+    CanonFlashMode
+    ContinuousDrive
+    ExposureLevelIncrements
+    Flash
+    FocusMode
+    ISO
+    MeteringMode
+    ShootingMode
+);
+
+
+my @lensTags = qw(
+    Lens
+    LensID
+    LensType
+    MaxAperture
+    MaxFocalLength
+    MinAperture
+    MinFocalLength
+);
+
+my @cameraTags = qw(
+    CameraType
+    CanonImageType
+    CanonModelID
+    Make
+    SerialNumber
+);
+
+
+
+
+
 
 
 
@@ -94,7 +210,7 @@ sub readDirectory {
     #  insertFiles();
 
 
-    print "leggo da db le immagini row... ";
+    print "leggo da db le immagini raw... ";
     my $res = readCatalog('cr2');
     print "lette\n";
 
@@ -105,7 +221,7 @@ sub readDirectory {
         my $f = $$res{$id}{'d'}."/".$$res{$id}{'f'};
         readRawImage($f);
         printf "\r%d", $n unless ($n % 100);
-        goto X if ($n > 200) 
+        goto X if ($n > 300) 
 
     }
 
@@ -113,9 +229,127 @@ X:
 #    dump($cameras);
 #    dump($lenses);
  #   dump($settings);
+# dump($images);
+#    dump($collider);
 
 
-    dump($collider);
+    # estrarre i dati degli slice e metterli su database
+
+
+    print "Inserting in DB...\n";
+
+
+    #
+    # images
+{    
+    my @keys = keys %{$images};
+
+    push(@imageTags, "idi");
+    my $query = createSQLInsert('imageTags', \@imageTags);
+
+    my $sth = $dbh->prepare($query) 
+        or die "Can't prepare insert: ".$dbh->errstr()."\n";
+
+    foreach my $k (@keys) {
+
+        $sth->execute(@{$images->{$k}})
+            or die "Can't execute insert: ".$dbh->errstr()."\n";
+
+    }
+    #$sth->execute_array({},\@keys, \@values);
+    
+    }    
+
+
+
+
+    #
+    # colider
+{    
+
+
+    my @colliderTags = qw(idc ids idl ShutterCount idi);
+    my @colliderFields = qw(camera settings lens ShutterCount );
+
+    my @keys = keys %{$collider};
+
+    my $query = createSQLInsert('collider', \@colliderTags);
+
+    my $sth = $dbh->prepare($query) 
+        or die "Can't prepare insert: ".$dbh->errstr()."\n";
+
+    foreach my $k (@keys) {
+        $sth->execute($collider->{$k}->{camera},
+                $collider->{$k}->{settings},
+                $collider->{$k}->{lens},
+                $collider->{$k}->{ShutterCount},
+                $k)
+            or die "Can't execute insert: ".$dbh->errstr()."\n";
+
+    }
+    #$sth->execute_array({},\@keys, \@values);
+}
+
+
+    #
+    # settings
+
+{    
+    push(@settingsTags, "ids");
+    my $query = createSQLInsert('settingsTags', \@settingsTags);
+
+    my $sth = $dbh->prepare($query) 
+        or die "Can't prepare insert: ".$dbh->errstr()."\n";
+
+    foreach my $k (keys %{$settings}) {
+        $sth->execute(@{$settings->{$k}})
+            or die "Can't execute insert: ".$dbh->errstr()."\n";
+
+    }
+    #$sth->execute_array({},\@keys, \@values);
+}
+    #
+    # camera
+{    
+
+    push(@cameraTags, "idc");
+    my @keys = keys %{$cameras};
+
+    my $query = createSQLInsert('cameraTags', \@cameraTags);
+
+    my $sth = $dbh->prepare($query) 
+        or die "Can't prepare insert: ".$dbh->errstr()."\n";
+
+    foreach my $k (@keys) {
+        $sth->execute(@{$cameras->{$k}})
+            or die "Can't execute insert: ".$dbh->errstr()."\n";
+
+    }
+#    $sth->execute_array({},\@keys, \@values);
+}
+    #
+    # lenses
+{    
+
+    push(@lensTags, "idl");
+    my @keys = keys %{$lenses};
+
+    my $query = createSQLInsert('lensTags', \@lensTags);
+
+    my $sth = $dbh->prepare($query) 
+        or die "Can't prepare insert: ".$dbh->errstr()."\n";
+
+    foreach my $k (@keys) {
+        $sth->execute(@{$lenses->{$k}})
+            or die "Can't execute insert: ".$dbh->errstr()."\n";
+
+    }
+    #    $sth->execute_array({},\@keys, \@values);
+}
+
+
+    print "...done\n";
+
 }
 
 
@@ -264,112 +498,6 @@ sub readRawImage {
 
 
     my ($f) = @_; # 
-    my @tags = qw(serComment Title ShutterSpeed Lens ISO CameraID Aperture Description ImageSize);
-
-    @tags = qw(
-        ApertureValue
-        AutoExposureBracketing
-        AutoISO
-        BaseISO
-        CameraType
-        CanonExposureMode
-        CanonFlashMode
-        CanonImageType
-        CanonModelID
-        ContinuousDrive
-        CreateDate
-        ExposureCompensation
-        ExposureLevelIncrements
-        ExposureProgram
-        ExposureTime
-        FNumber
-        Flash
-        FocalLength
-        FocusMode
-        ISO
-        ImageSize
-        Lens
-        LensID
-        LensType
-        MIMEType
-        Make
-        MaxAperture
-        MaxFocalLength
-        MeasuredEV
-        MeteringMode
-        MinAperture
-        MinFocalLength
-        ModifyDate
-        SerialNumber
-        ShutterCount
-        ShootingMode
-        ShutterSpeed
-        ShutterSpeedValue
-        TargetAperture
-        TargetExposureTime
-    );
-
-
-#        ShutterSpeedValue
-#        TargetAperture
-#        TargetExposureTime
-
-
-    my @imageTags = qw(
-        ApertureValue
-        CanonFlashMode
-        CreateDate
-        ExposureCompensation
-        ExposureTime
-        FNumber
-        Flash
-        FocalLength
-        FocusMode
-        ISO
-        ImageSize
-        MeasuredEV
-        ModifyDate
-        ShootingMode
-        
-        ShutterSpeed
-        );
-
-
-    my @Canon1Ds = qw(ShutterCount);
-
-#    CanonExposureMode
-#    ExposureProgram
-
-    my @settingsTags = qw(
-        AutoExposureBracketing
-        CanonFlashMode
-        ContinuousDrive
-        ExposureLevelIncrements
-        Flash
-        FocusMode
-        ISO
-        MeteringMode
-        ShootingMode
-    );
-
-
-    my @lensTags = qw(
-        Lens
-        LensID
-        LensType
-        MaxAperture
-        MaxFocalLength
-        MinAperture
-        MinFocalLength
-    );
-
-    my @cameraTags = qw(
-        CameraType
-        CanonImageType
-        CanonModelID
-        Make
-        SerialNumber
-    );
 
 
 =pod
@@ -440,56 +568,50 @@ foreach my $tag (@x) {
     }
 
 
-    my $imageAdds = {};
 
+    # FIXME: l'hash/PK di images deve essere la path
+
+    # crea l'hash collider 
+    # e gli alitr hash
+
+    my $imageAdds = {};
 
     $digest = md5_hex(join(':',@hash{@cameraTags}));
     $imageAdds->{'camera'} = $digest;
-    $cameras->{substr($digest,0,8)} = [ @hash{@cameraTags} ];
+    $cameras->{substr($digest,0,8)} = [ @hash{@cameraTags}, $digest ];
 
     $digest = md5_hex(join(':',@hash{@settingsTags}));
     $imageAdds->{'settings'} = $digest;
-    $settings->{substr($digest,0,8)} = [ @hash{@settingsTags} ];
+    $settings->{substr($digest,0,8)} = [ @hash{@settingsTags}, $digest ];
 
     $digest = md5_hex(join(':',@hash{@lensTags}));
     $imageAdds->{'lens'} = $digest;
-    $lenses->{substr($digest,0,8)} = [ @hash{@lensTags} ];
+    $lenses->{substr($digest,0,8)} = [ @hash{@lensTags}, $digest ];
 
     $imageAdds->{'ShutterCount'} = $hash{'ShutterCount'};
-
     $digest = md5_hex(join(':',@hash{@imageTags}));
 #    $imageAdds->{'image'} = $digest;
+
     $collider->{$digest} = $imageAdds;
+
+    $images->{$digest} = [ @hash{@imageTags}, $digest ];
+    $images->{$digest}[2] =~ s/(\d{4}):(\d{2}):(\d{2})/$1-$2-$3/; # CreateDate
 
     return;
 
-    # aggiungo campo per id immagine
-    push(@tags, 'idCollider');
 
-    my $keystr = (join ",", (@tags));
-    my $valstr = join ',', (split(/ /, "? " x (scalar(@tags))));
-    my @values = @hash{@tags};
-
-    # aggiungo id immagine
-    push(@values, $digest);
-
-    my $query = qq/
-        INSERT INTO exifRaw (
-            $keystr
-        )
-        VALUES (
-            $valstr
-        )
-    /;
-
-    my $sth = $dbh->prepare($query) 
-        or die "Can't prepare insert: ".$dbh->errstr()."\n";
-
-    $sth->execute(@values)
-        or die "Can't execute insert: ".$dbh->errstr()."\n";
+}
 
 
-    # TODO: mancano  insert dei dati normalizzati
+sub createSQLInsert {
+    my ($tab, $fieldNames) = @_;
+
+    my $keystr = (join ",", ( @{$fieldNames} ));
+    my $valstr = join ',', (split(/ /, "? " x (scalar( @{$fieldNames} ))));
+
+    my $query = qq/INSERT INTO $tab ($keystr) VALUES ($valstr)/;
+
+    return $query;
 
 }
 

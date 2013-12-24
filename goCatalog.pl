@@ -6,6 +6,7 @@ use Data::Dump qw(dump);
 use File::stat; 
 use strict;
 use File::Find ();
+use Cwd 'abs_path';
 
 use Digest::MD5 qw(md5 md5_hex md5_base64);
 
@@ -13,10 +14,130 @@ use Image::ExifTool qw(:Public);
 
 my @set_files;
 
-my $basedir = '/Volumes/TERAMOVIE';
+my $cameras = {};
+my $settings = {};
+my $lenses = {};
+my $collider = {};
 
-$basedir = qq(/Users/ste/Pictures);
 
+
+my $dbh;
+
+
+
+foreach my $f (@ARGV)
+{
+    $f = qq(/Users/ste/Pictures);
+    readDirectory( abs_path($f) );
+}
+
+
+
+exit;
+
+
+
+sub readDirectory {
+
+    my ($basedir) = @_;
+
+    # Set the variable $File::Find::dont_use_nlink if you're using AFS,
+    # since AFS cheats.
+
+    # for the convenience of &wanted calls, including -eval statements:
+    use vars qw/*name *dir *prune/;
+    *name   = *File::Find::name;
+    *dir    = *File::Find::dir;
+    *prune  = *File::Find::prune;
+
+    sub wanted;
+
+
+    File::Find::find({wanted => \&wanted}, $basedir);
+
+    # dump(@set_files);
+
+    # SELECT userId, url, FROM_UNIXTIME(epoch,"%Y-%m-%d")
+
+    $dbh->{PrintError} = 1; # enable
+    # $dbh = DBI->connect('DBI:mysql:movies', 'ste', 'ste' ) || die "Could not connect to database: $DBI::errstr";
+    $dbh = DBI->connect(          
+        "dbi:SQLite:dbname=$basedir/catalog.db", 
+        "",                          
+        "",                          
+        { RaiseError => 1  },         
+    ) or die $DBI::errstr;
+
+
+
+
+    eval {
+    #    $dbh->do( qq(drop TABLE  "catalog") );
+        $dbh->do( qq(CREATE TABLE IF NOT EXISTS "catalog" (
+      "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+      "d" varchar(255) DEFAULT NULL,
+      "f" varchar(255) DEFAULT NULL,
+      "size" decimal(10,0) DEFAULT NULL,
+      "f_date" int(11) DEFAULT NULL,
+      "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+    ) ));
+
+     #   $dbh->do(qq(CREATE INDEX "catalog_IX_hash" ON "catalog" ("hash"));));
+
+        # TODO: gestire tab control (label - data)
+        $dbh->do(qq(create table if not exists control ("id" INTEGER PRIMARY KEY AUTOINCREMENT, "label" varchar(32), dts timestamp, dte timestamp) ));
+
+    };
+
+
+
+    #  insertFiles();
+
+
+    print "leggo da db le immagini row... ";
+    my $res = readCatalog('cr2');
+    print "lette\n";
+
+    print "estraggo le informazioni...\n";
+    my $n=0;
+    foreach my $id (keys %$res) {
+        $n++;
+        my $f = $$res{$id}{'d'}."/".$$res{$id}{'f'};
+        readRawImage($f);
+        printf "\r%d", $n unless ($n % 100);
+        goto X if ($n > 200) 
+
+    }
+
+X:
+#    dump($cameras);
+#    dump($lenses);
+ #   dump($settings);
+
+
+    dump($collider);
+}
+
+
+
+
+
+
+
+
+
+=pod
+
+per pulire il nome dir, da chiamare in insert: cleandir(dirname)
+mai testata
+
+=cut
+
+sub cleandir {
+    my ($basedir, $dir) = @_;
+    $dir =~ s/^${basedir}//;
+    return $dir;
+}
 
 
 sub _Attempt_video
@@ -28,6 +149,8 @@ sub _Attempt_video
 }
 
 
+
+# ancora non utilizzato
 my %exts = ( 
     'pics' => qw(jpg jpeg png gif),  
     'video' => qw(avi divx mpg mpeg), 
@@ -35,87 +158,6 @@ my %exts = (
     'raw' => qw(crw cr2)
     );
 
-# $basedir = '/Users/stefanobrozzi/Miro';
-#Ê$basedir = '/Users/stefanobrozzi/Music';
-
-
-# Set the variable $File::Find::dont_use_nlink if you're using AFS,
-# since AFS cheats.
-
-# for the convenience of &wanted calls, including -eval statements:
-use vars qw/*name *dir *prune/;
-*name   = *File::Find::name;
-*dir    = *File::Find::dir;
-*prune  = *File::Find::prune;
-
-sub wanted;
-
-=pod
-
-per pulire il nome dir, da chiamare in insert: cleandir(dirname)
-mai testata
-
-=cut
-
-sub cleandir {
-	my ($dir) = @_;
-	$dir =~ s/^${basedir}//;
-	return $dir;
-}
-
-File::Find::find({wanted => \&wanted}, $basedir);
-
-# dump(@set_files);
-
-# SELECT userId, url, FROM_UNIXTIME(epoch,"%Y-%m-%d")
-
-my $dbh->{PrintError} = 1; # enable
-# $dbh = DBI->connect('DBI:mysql:movies', 'ste', 'ste' ) || die "Could not connect to database: $DBI::errstr";
-$dbh = DBI->connect(          
-    "dbi:SQLite:dbname=$basedir/catalog.db", 
-    "",                          
-    "",                          
-    { RaiseError => 1  },         
-) or die $DBI::errstr;
-
-
-
-
-eval {
-#    $dbh->do( qq(drop TABLE  "catalog") );
-    $dbh->do( qq(CREATE TABLE IF NOT EXISTS "catalog" (
-  "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-  "d" varchar(255) DEFAULT NULL,
-  "f" varchar(255) DEFAULT NULL,
-  "size" decimal(10,0) DEFAULT NULL,
-  "f_date" int(11) DEFAULT NULL,
-  "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ));
-
- #   $dbh->do(qq(CREATE INDEX "catalog_IX_hash" ON "catalog" ("hash"));));
-
-    $dbh->do(qq(create table if not exists control ("id" INTEGER PRIMARY KEY AUTOINCREMENT, "label" varchar(32), dts timestamp, dte timestamp) ));
-
-};
-
-
-
-#  insertFiles();
-
-
-my $res = readCatalog('cr2');
-
-foreach my $id (keys %$res) {
-    my $f = $$res{$id}{'d'}."/".$$res{$id}{'f'};
-    # print $f;
-    readRawImage($f);
-    print "\n";
-
-}
-
-
-
-exit;
 
 
 # TODO: leggere la data dell'ultima lettura
@@ -124,6 +166,9 @@ exit;
 # TODO: aggiungere l'opzione per la  
 
 
+=pod
+per selezionare la singola entry
+=cut
 sub getRecordPerID {
     my ($id) = @_;
     my $sql = qq(select * from catalog where id=?);
@@ -140,6 +185,9 @@ sub getRecordPerID {
 
 
 
+=pod
+shortcut per estrarre particolari estensioni (i.e images)
+=cut
 sub readCatalog {
     my ($ext) = @_;
     my $sql = qq(select * from catalog where f like "%$ext" );
@@ -205,6 +253,11 @@ sub insertFiles {
 
 
 
+sub saveImageData {
+    return;
+}
+ 
+
 
 
 sub readRawImage {
@@ -213,46 +266,48 @@ sub readRawImage {
     my ($f) = @_; # 
     my @tags = qw(serComment Title ShutterSpeed Lens ISO CameraID Aperture Description ImageSize);
 
-    @tags = qw(ApertureValue
-    AutoExposureBracketing
-    AutoISO
-    BaseISO
-    CameraType
-    CanonExposureMode
-    CanonFlashMode
-    CanonImageType
-    CanonModelID
-    ContinuousDrive
-    CreateDate
-    ExposureCompensation
-    ExposureLevelIncrements
-    ExposureProgram
-    ExposureTime
-    FNumber
-    Flash
-    FocalLength
-    FocusMode
-    ISO
-    ImageSize
-    Lens
-    LensID
-    LensType
-    MIMEType
-    Make
-    MaxAperture
-    MaxFocalLength
-    MeasuredEV
-    MeteringMode
-    MinAperture
-    MinFocalLength
-    ModifyDate
-    SerialNumber
-    ShootingMode
-    ShutterCount
-    ShutterSpeed
-    ShutterSpeedValue
-    TargetAperture
-    TargetExposureTime);
+    @tags = qw(
+        ApertureValue
+        AutoExposureBracketing
+        AutoISO
+        BaseISO
+        CameraType
+        CanonExposureMode
+        CanonFlashMode
+        CanonImageType
+        CanonModelID
+        ContinuousDrive
+        CreateDate
+        ExposureCompensation
+        ExposureLevelIncrements
+        ExposureProgram
+        ExposureTime
+        FNumber
+        Flash
+        FocalLength
+        FocusMode
+        ISO
+        ImageSize
+        Lens
+        LensID
+        LensType
+        MIMEType
+        Make
+        MaxAperture
+        MaxFocalLength
+        MeasuredEV
+        MeteringMode
+        MinAperture
+        MinFocalLength
+        ModifyDate
+        SerialNumber
+        ShutterCount
+        ShootingMode
+        ShutterSpeed
+        ShutterSpeedValue
+        TargetAperture
+        TargetExposureTime
+    );
 
 
 #        ShutterSpeedValue
@@ -275,24 +330,27 @@ sub readRawImage {
         MeasuredEV
         ModifyDate
         ShootingMode
-        ShutterCount
+        
         ShutterSpeed
         );
 
+
+    my @Canon1Ds = qw(ShutterCount);
 
 #    CanonExposureMode
 #    ExposureProgram
 
     my @settingsTags = qw(
-    AutoExposureBracketing
-    CanonFlashMode
-    ContinuousDrive
-    ExposureLevelIncrements
-    Flash
-    FocusMode
-    ISO
-    MeteringMode
-    ShootingMode);
+        AutoExposureBracketing
+        CanonFlashMode
+        ContinuousDrive
+        ExposureLevelIncrements
+        Flash
+        FocusMode
+        ISO
+        MeteringMode
+        ShootingMode
+    );
 
 
     my @lensTags = qw(
@@ -323,63 +381,97 @@ foreach my $tag (@x) {
 
 
 
-
     my $info = ImageInfo($f, @tags);
+
+    die if (! defined($info));
     my %hash = %{ $info };
 
     my $digest;
 
-    foreach my $t (@imageTags) {
-        if ($hash{'ShutterSpeed'} ne $hash{'ExposureTime'}) {
+    # dumpTags();
+    #    exit;
 
-        printf "%20s => %-30s\n", $t, $hash{$t};
+
+    # debug... dump di tutti i tags
+    #    dumpTags();
+
+    sub dumpTags {
+        foreach my $t (@imageTags) {
+            printf "%20s => %-30s\n", $t, $hash{$t};
         }
+
+        
+        print " === all tags \n";
+    #    dump(@tags);
+        dump(@hash{@tags});
+
+        print join(':',@hash{@tags});
+        print qq(\n);
+        $digest = md5_hex(join(':',@hash{@tags}));
+        print $digest."\n";
+
+
+        print " === lens tags \n";
+    #    dump(@lensTags);
+        dump(@hash{@lensTags});
+        print join(':',@hash{@lensTags});
+        print qq(\n);
+        $digest = md5_hex(join(':',@hash{@lensTags}));
+        print $digest."\n";
+
+        print " === camera tags \n";
+    #    dump(@cameraTags);
+        dump(@hash{@cameraTags});
+        $digest = md5_hex(join(':',@hash{@cameraTags}));
+    #    print $digest."\n";
+
+        print " === image tags \n";
+    #    dump(@imageTags);
+        dump(@hash{@imageTags});
+        $digest = md5_hex(join(':',@hash{@imageTags}));
+        print $digest."\n";
+
+        print " === settings tags \n";
+    #    dump(@imageTags);
+        dump(@hash{@settingsTags});
+        $digest = md5_hex(join(':',@hash{@settingsTags}));
+        print $digest."\n";
+
     }
+
+
+    my $imageAdds = {};
+
+
+    $digest = md5_hex(join(':',@hash{@cameraTags}));
+    $imageAdds->{'camera'} = $digest;
+    $cameras->{substr($digest,0,8)} = [ @hash{@cameraTags} ];
+
+    $digest = md5_hex(join(':',@hash{@settingsTags}));
+    $imageAdds->{'settings'} = $digest;
+    $settings->{substr($digest,0,8)} = [ @hash{@settingsTags} ];
+
+    $digest = md5_hex(join(':',@hash{@lensTags}));
+    $imageAdds->{'lens'} = $digest;
+    $lenses->{substr($digest,0,8)} = [ @hash{@lensTags} ];
+
+    $imageAdds->{'ShutterCount'} = $hash{'ShutterCount'};
+
+    $digest = md5_hex(join(':',@hash{@imageTags}));
+#    $imageAdds->{'image'} = $digest;
+    $collider->{$digest} = $imageAdds;
+
     return;
 
-    print " === all tags \n";
-#    dump(@tags);
-#    dump(@hash{@tags});
+    # aggiungo campo per id immagine
+    push(@tags, 'idCollider');
 
-    print join(':',@hash{@tags});
-    print qq(\n);
-    $digest = md5_hex(join(':',@hash{@tags}));
- print $digest."\n";
-
-
-    print " === lens tags \n";
-#    dump(@lensTags);
-#    dump(@hash{@lensTags});
-    print join(':',@hash{@lensTags});
-    print qq(\n);
-    $digest = md5_hex(join(':',@hash{@lensTags}));
- print $digest."\n";
-
-    print " === camera tags \n";
-#    dump(@cameraTags);
-#    dump(@hash{@cameraTags});
-    $digest = md5_hex(join(':',@hash{@cameraTags}));
- print $digest."\n";
-
-
-    print " === image tags \n";
-#    dump(@imageTags);
-#    dump(@hash{@imageTags});
-    $digest = md5_hex(join(':',@hash{@imageTags}));
- print $digest."\n";
-
-
-    exit;
-
-
-    # TODO: urgente : manca id immagine iniziale
-
-    my $info = ImageInfo($f, @tags);
-    my %hash = %{ $info };
-
-    my $keystr = (join ",\n        ", (@tags));
-    my $valstr = join ', ', (split(/ /, "? " x (scalar(@tags))));
+    my $keystr = (join ",", (@tags));
+    my $valstr = join ',', (split(/ /, "? " x (scalar(@tags))));
     my @values = @hash{@tags};
+
+    # aggiungo id immagine
+    push(@values, $digest);
 
     my $query = qq/
         INSERT INTO exifRaw (
@@ -396,14 +488,8 @@ foreach my $tag (@x) {
     $sth->execute(@values)
         or die "Can't execute insert: ".$dbh->errstr()."\n";
 
-    #foreach my $tag (@x) {
-        # body...
-    #    print "$tag => ".$info->{$tag}."\n";
-    #}
 
-    #dump($info);
-
-
+    # TODO: mancano  insert dei dati normalizzati
 
 }
 

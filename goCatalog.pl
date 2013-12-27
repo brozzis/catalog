@@ -12,6 +12,8 @@ use Digest::MD5 qw(md5 md5_hex md5_base64);
 
 use Image::ExifTool qw(:Public);
 
+use POSIX;
+
 my @set_files;
 
 my $cameras = {};
@@ -201,10 +203,27 @@ sub readDirectory {
      #   $dbh->do(qq(CREATE INDEX "catalog_IX_hash" ON "catalog" ("hash"));));
 
         # TODO: gestire tab control (label - data)
-        $dbh->do(qq(create table if not exists control ("id" INTEGER PRIMARY KEY AUTOINCREMENT, "label" varchar(32), dts timestamp, dte timestamp) ));
+        $dbh->do(qq(create table if not exists control (
+                "label" varchar(32), 
+                "basedir" varchar(50),
+                "note" varchar(250),
+                dts timestamp, 
+                dte timestamp) ));
 
     };
 
+    # valorizzazione di control
+    {
+        my $sql=qq(insert into control (label, basedir, note, dts, dte) values (?,?,?,?,?));
+        my $dt = strftime "%F %T", localtime $^T;
+
+        my $sth = $dbh->prepare($query) 
+            or die "Can't prepare insert: ".$dbh->errstr()."\n";
+
+        $sth->execute("etichetta", $basedir, "limitato - test", $dt, $dt)
+            or die "Can't execute insert: ".$dbh->errstr()."\n";        
+    }
+    # TODO: fare un update su catalog togliendo il basedir
 
 
     #  insertFiles();
@@ -219,9 +238,9 @@ sub readDirectory {
     foreach my $id (keys %$res) {
         $n++;
         my $f = $$res{$id}{'d'}."/".$$res{$id}{'f'};
-        readRawImage($f);
+        readRawImage($id, $f);
         printf "\r%d", $n unless ($n % 100);
-        goto X if ($n > 300) 
+        goto X if ($n > 5) 
 
     }
 
@@ -230,7 +249,12 @@ X:
 #    dump($lenses);
  #   dump($settings);
 # dump($images);
-#    dump($collider);
+#  dump($collider);
+
+    my @keys = keys %{$collider};
+    foreach my $k (@keys) {
+        print $k."\n";
+    }
 
 
     # estrarre i dati degli slice e metterli su database
@@ -242,9 +266,17 @@ X:
     #
     # images
 {    
+
+    $dbh->{AutoCommit} = 1; 
+    $dbh->begin_work;  
+    $dbh->do("PRAGMA synchronous = OFF");
+    $dbh->do("PRAGMA journal_mode=MEMORY");
+
     my @keys = keys %{$images};
 
     push(@imageTags, "idi");
+    push(@imageTags, "id");
+
     my $query = createSQLInsert('imageTags', \@imageTags);
 
     my $sth = $dbh->prepare($query) 
@@ -258,6 +290,8 @@ X:
     }
     #$sth->execute_array({},\@keys, \@values);
     
+
+    $dbh->commit;
     }    
 
 
@@ -267,7 +301,12 @@ X:
     # colider
 {    
 
+    $dbh->{AutoCommit} = 1; 
+    $dbh->begin_work;  
+    $dbh->do("PRAGMA synchronous = OFF");
+    $dbh->do("PRAGMA journal_mode=MEMORY");
 
+    # TODO: anche git usa sha1[:7]
     my @colliderTags = qw(idc ids idl ShutterCount idi);
     my @colliderFields = qw(camera settings lens ShutterCount );
 
@@ -287,6 +326,8 @@ X:
             or die "Can't execute insert: ".$dbh->errstr()."\n";
 
     }
+
+    $dbh->commit;
     #$sth->execute_array({},\@keys, \@values);
 }
 
@@ -295,6 +336,11 @@ X:
     # settings
 
 {    
+    $dbh->{AutoCommit} = 1;
+    $dbh->begin_work;  
+    $dbh->do("PRAGMA synchronous = OFF");
+    $dbh->do("PRAGMA journal_mode=MEMORY");
+
     push(@settingsTags, "ids");
     my $query = createSQLInsert('settingsTags', \@settingsTags);
 
@@ -306,12 +352,17 @@ X:
             or die "Can't execute insert: ".$dbh->errstr()."\n";
 
     }
+
+    $dbh->commit;
     #$sth->execute_array({},\@keys, \@values);
 }
     #
     # camera
 {    
-
+    $dbh->{AutoCommit} = 1;
+    $dbh->begin_work;  
+    $dbh->do("PRAGMA synchronous = OFF");
+    $dbh->do("PRAGMA journal_mode=MEMORY");
     push(@cameraTags, "idc");
     my @keys = keys %{$cameras};
 
@@ -325,11 +376,18 @@ X:
             or die "Can't execute insert: ".$dbh->errstr()."\n";
 
     }
-#    $sth->execute_array({},\@keys, \@values);
+
+    $dbh->commit;
+
+    #    $sth->execute_array({},\@keys, \@values);
 }
     #
     # lenses
 {    
+    $dbh->{AutoCommit} = 1;
+    $dbh->begin_work;  
+    $dbh->do("PRAGMA synchronous = OFF");
+    $dbh->do("PRAGMA journal_mode=MEMORY");
 
     push(@lensTags, "idl");
     my @keys = keys %{$lenses};
@@ -345,7 +403,12 @@ X:
 
     }
     #    $sth->execute_array({},\@keys, \@values);
+
+    $dbh->commit;
 }
+
+    # print "saving thumbnail";
+
 
 
     print "...done\n";
@@ -497,7 +560,7 @@ sub saveImageData {
 sub readRawImage {
 
 
-    my ($f) = @_; # 
+    my ($id, $f) = @_; # 
 
 
 =pod
@@ -574,29 +637,33 @@ foreach my $tag (@x) {
     # crea l'hash collider 
     # e gli alitr hash
 
-    my $imageAdds = {};
+    {
+        no warnings;
 
-    $digest = md5_hex(join(':',@hash{@cameraTags}));
-    $imageAdds->{'camera'} = $digest;
-    $cameras->{substr($digest,0,8)} = [ @hash{@cameraTags}, $digest ];
+        my $imageAdds = {};
 
-    $digest = md5_hex(join(':',@hash{@settingsTags}));
-    $imageAdds->{'settings'} = $digest;
-    $settings->{substr($digest,0,8)} = [ @hash{@settingsTags}, $digest ];
+        $digest = md5_hex(join(':',@hash{@cameraTags}));
+        $imageAdds->{'camera'} = $digest;
+        $cameras->{substr($digest,0,8)} = [ @hash{@cameraTags}, $digest ];
 
-    $digest = md5_hex(join(':',@hash{@lensTags}));
-    $imageAdds->{'lens'} = $digest;
-    $lenses->{substr($digest,0,8)} = [ @hash{@lensTags}, $digest ];
+        $digest = md5_hex(join(':',@hash{@settingsTags}));
+        $imageAdds->{'settings'} = $digest;
+        $settings->{substr($digest,0,8)} = [ @hash{@settingsTags}, $digest ];
 
-    $imageAdds->{'ShutterCount'} = $hash{'ShutterCount'};
-    $digest = md5_hex(join(':',@hash{@imageTags}));
-#    $imageAdds->{'image'} = $digest;
+        $digest = md5_hex(join(':',@hash{@lensTags}));
+        $imageAdds->{'lens'} = $digest;
+        $lenses->{substr($digest,0,8)} = [ @hash{@lensTags}, $digest ];
 
-    $collider->{$digest} = $imageAdds;
+        $imageAdds->{'ShutterCount'} = $hash{'ShutterCount'};
+        $digest = md5_hex(join(':',@hash{@imageTags}));
+    #    $imageAdds->{'image'} = $digest;
 
-    $images->{$digest} = [ @hash{@imageTags}, $digest ];
-    $images->{$digest}[2] =~ s/(\d{4}):(\d{2}):(\d{2})/$1-$2-$3/; # CreateDate
+        $collider->{$digest} = $imageAdds;
 
+        $images->{$digest} = [ @hash{@imageTags}, $digest, $id ];
+        $images->{$digest}[2] =~ s/(\d{4}):(\d{2}):(\d{2})/$1-$2-$3/; # CreateDate
+
+    }
     return;
 
 

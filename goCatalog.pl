@@ -8,6 +8,8 @@ use strict;
 use File::Find ();
 use Cwd 'abs_path';
 
+use MIME::Base64;
+
 use Digest::MD5 qw(md5 md5_hex md5_base64);
 
 use Image::ExifTool qw(:Public);
@@ -25,6 +27,7 @@ my $collider = {};
 
 
 my $dbh;
+my $opt_v;
 
 
 
@@ -143,15 +146,42 @@ my @cameraTags = qw(
 
 
 
-foreach my $f (@ARGV)
+foreach my $dir (@ARGV)
 {
-    $f = qq(/Users/ste/Pictures);
-    readDirectory( abs_path($f) );
+    unless (-d $dir) {
+        die "devi specificare una dir significativa!!";
+    }
+    # $f = qq(/Users/ste/Pictures);
+    readDirectory( abs_path($dir) );
 }
 
 
 
 exit;
+
+
+sub saveThumbnail {
+    my ($id, $f) = @_;
+
+    my $info = ImageInfo($f, 'thumbnailimage');
+
+    # 
+    # dump($info->{'ThumbnailImage'});
+
+    #$encoded = encode_base64($info);
+    #dump($encoded);
+
+    # $decoded = decode_base64($info->{'ThumbnailImage'});
+    # dump($decoded);
+
+    my $query = qq(insert into thumbs (id, thumb) values (?,?));
+    my $sth = $dbh->prepare($query) 
+        or die "Can't prepare insert: ".$dbh->errstr();
+
+    $sth->execute($id, encode_base64(${$info->{'ThumbnailImage'}} ) )
+        or die "Can't execute insert: ".$dbh->errstr();        
+}
+
 
 
 
@@ -187,8 +217,6 @@ sub readDirectory {
     ) or die $DBI::errstr;
 
 
-
-
     eval {
     #    $dbh->do( qq(drop TABLE  "catalog") );
         $dbh->do( qq(CREATE TABLE IF NOT EXISTS "catalog" (
@@ -204,6 +232,7 @@ sub readDirectory {
 
         # TODO: gestire tab control (label - data)
         $dbh->do(qq(create table if not exists control (
+            "id" INTEGER PRIMARY KEY AUTOINCREMENT,
                 "label" varchar(32), 
                 "basedir" varchar(50),
                 "note" varchar(250),
@@ -212,21 +241,42 @@ sub readDirectory {
 
     };
 
+
     # valorizzazione di control
     {
         my $sql=qq(insert into control (label, basedir, note, dts, dte) values (?,?,?,?,?));
         my $dt = strftime "%F %T", localtime $^T;
 
-        my $sth = $dbh->prepare($query) 
-            or die "Can't prepare insert: ".$dbh->errstr()."\n";
+        my $sth = $dbh->prepare($sql) 
+            or die "Can't prepare insert: ".$dbh->errstr();
 
         $sth->execute("etichetta", $basedir, "limitato - test", $dt, $dt)
-            or die "Can't execute insert: ".$dbh->errstr()."\n";        
+            or die "Can't execute insert: ".$dbh->errstr();        
     }
     # TODO: fare un update su catalog togliendo il basedir
 
 
-    #  insertFiles();
+    # inserisce TUTTI i files in "catalog"
+    insertFiles();
+
+
+=pod
+        open(FH, ">:raw", "test.jpg") or die;
+        # binmode(FH);
+        #$d = ${$info->{'ThumbnailImage'}};
+        print FH ${$info->{'ThumbnailImage'}};
+
+        close(FH);
+
+
+        open(FH, ">:raw", "test.jpg.uu") or die;
+        # binmode(FH);
+        #$d = ${$info->{'ThumbnailImage'}};
+        print FH encode_base64(${$info->{'ThumbnailImage'}});
+
+        close(FH);
+=cut
+
 
 
     print "leggo da db le immagini raw... ";
@@ -239,8 +289,9 @@ sub readDirectory {
         $n++;
         my $f = $$res{$id}{'d'}."/".$$res{$id}{'f'};
         readRawImage($id, $f);
+        saveThumbnail($id, $f);
         printf "\r%d", $n unless ($n % 100);
-        goto X if ($n > 5) 
+        # goto X if ($n > 5) ;
 
     }
 
@@ -251,164 +302,166 @@ X:
 # dump($images);
 #  dump($collider);
 
+=pod
     my @keys = keys %{$collider};
     foreach my $k (@keys) {
         print $k."\n";
     }
-
+=cut
 
     # estrarre i dati degli slice e metterli su database
 
-
     print "Inserting in DB...\n";
-
 
     #
     # images
-{    
 
-    $dbh->{AutoCommit} = 1; 
-    $dbh->begin_work;  
-    $dbh->do("PRAGMA synchronous = OFF");
-    $dbh->do("PRAGMA journal_mode=MEMORY");
 
-    my @keys = keys %{$images};
+    print "insert images...\n" if ($opt_v);
+    {    
 
-    push(@imageTags, "idi");
-    push(@imageTags, "id");
+        $dbh->{AutoCommit} = 1; 
+        $dbh->begin_work;  
+        $dbh->do("PRAGMA synchronous = OFF");
+        $dbh->do("PRAGMA journal_mode=MEMORY");
 
-    my $query = createSQLInsert('imageTags', \@imageTags);
+        my @keys = keys %{$images};
 
-    my $sth = $dbh->prepare($query) 
-        or die "Can't prepare insert: ".$dbh->errstr()."\n";
+        push(@imageTags, "idi");
+        push(@imageTags, "id");
 
-    foreach my $k (@keys) {
+        my $query = createSQLInsert('imageTags', \@imageTags);
 
-        $sth->execute(@{$images->{$k}})
-            or die "Can't execute insert: ".$dbh->errstr()."\n";
+        my $sth = $dbh->prepare($query) 
+            or die "Can't prepare insert: ".$dbh->errstr();
 
-    }
-    #$sth->execute_array({},\@keys, \@values);
-    
+        foreach my $k (@keys) {
 
-    $dbh->commit;
+            $sth->execute(@{$images->{$k}})
+                or die "Can't execute insert: ".$dbh->errstr();
+
+        }
+        #$sth->execute_array({},\@keys, \@values);
+        
+
+        $dbh->commit;
     }    
-
-
-
 
     #
     # colider
-{    
+    print "insert collider...\n" if ($opt_v);
+    {    
 
-    $dbh->{AutoCommit} = 1; 
-    $dbh->begin_work;  
-    $dbh->do("PRAGMA synchronous = OFF");
-    $dbh->do("PRAGMA journal_mode=MEMORY");
+        $dbh->{AutoCommit} = 1; 
+        $dbh->begin_work;  
+        $dbh->do("PRAGMA synchronous = OFF");
+        $dbh->do("PRAGMA journal_mode=MEMORY");
 
-    # TODO: anche git usa sha1[:7]
-    my @colliderTags = qw(idc ids idl ShutterCount idi);
-    my @colliderFields = qw(camera settings lens ShutterCount );
+        # TODO: anche git usa sha1[:7]
+        my @colliderTags = qw(idc ids idl ShutterCount idi);
+        my @colliderFields = qw(camera settings lens ShutterCount );
 
-    my @keys = keys %{$collider};
+        my @keys = keys %{$collider};
 
-    my $query = createSQLInsert('collider', \@colliderTags);
+        my $query = createSQLInsert('collider', \@colliderTags);
 
-    my $sth = $dbh->prepare($query) 
-        or die "Can't prepare insert: ".$dbh->errstr()."\n";
+        my $sth = $dbh->prepare($query) 
+            or die "Can't prepare insert: ".$dbh->errstr();
 
-    foreach my $k (@keys) {
-        $sth->execute($collider->{$k}->{camera},
-                $collider->{$k}->{settings},
-                $collider->{$k}->{lens},
-                $collider->{$k}->{ShutterCount},
-                $k)
-            or die "Can't execute insert: ".$dbh->errstr()."\n";
+        foreach my $k (@keys) {
+            $sth->execute($collider->{$k}->{camera},
+                    $collider->{$k}->{settings},
+                    $collider->{$k}->{lens},
+                    $collider->{$k}->{ShutterCount},
+                    $k)
+                or die "Can't execute insert: ".$dbh->errstr();
 
+        }
+
+        $dbh->commit;
+        #$sth->execute_array({},\@keys, \@values);
     }
-
-    $dbh->commit;
-    #$sth->execute_array({},\@keys, \@values);
-}
-
 
     #
     # settings
+    print "insert settings...\n" if ($opt_v);
+    {    
+        $dbh->{AutoCommit} = 1;
+        $dbh->begin_work;  
+        $dbh->do("PRAGMA synchronous = OFF");
+        $dbh->do("PRAGMA journal_mode=MEMORY");
 
-{    
-    $dbh->{AutoCommit} = 1;
-    $dbh->begin_work;  
-    $dbh->do("PRAGMA synchronous = OFF");
-    $dbh->do("PRAGMA journal_mode=MEMORY");
+        push(@settingsTags, "ids");
+        my $query = createSQLInsert('settingsTags', \@settingsTags);
 
-    push(@settingsTags, "ids");
-    my $query = createSQLInsert('settingsTags', \@settingsTags);
+        my $sth = $dbh->prepare($query) 
+            or die "Can't prepare insert: ".$dbh->errstr();
 
-    my $sth = $dbh->prepare($query) 
-        or die "Can't prepare insert: ".$dbh->errstr()."\n";
+        foreach my $k (keys %{$settings}) {
+            $sth->execute(@{$settings->{$k}})
+                or die "Can't execute insert: ".$dbh->errstr();
 
-    foreach my $k (keys %{$settings}) {
-        $sth->execute(@{$settings->{$k}})
-            or die "Can't execute insert: ".$dbh->errstr()."\n";
+        }
 
+        $dbh->commit;
+        #$sth->execute_array({},\@keys, \@values);
     }
 
-    $dbh->commit;
-    #$sth->execute_array({},\@keys, \@values);
-}
     #
     # camera
-{    
-    $dbh->{AutoCommit} = 1;
-    $dbh->begin_work;  
-    $dbh->do("PRAGMA synchronous = OFF");
-    $dbh->do("PRAGMA journal_mode=MEMORY");
-    push(@cameraTags, "idc");
-    my @keys = keys %{$cameras};
+    print "insert cameras...\n" if ($opt_v);
+    {    
+        $dbh->{AutoCommit} = 1;
+        $dbh->begin_work;  
+        $dbh->do("PRAGMA synchronous = OFF");
+        $dbh->do("PRAGMA journal_mode=MEMORY");
+        push(@cameraTags, "idc");
+        my @keys = keys %{$cameras};
 
-    my $query = createSQLInsert('cameraTags', \@cameraTags);
+        my $query = createSQLInsert('cameraTags', \@cameraTags);
 
-    my $sth = $dbh->prepare($query) 
-        or die "Can't prepare insert: ".$dbh->errstr()."\n";
+        my $sth = $dbh->prepare($query) 
+            or die "Can't prepare insert: ".$dbh->errstr();
 
-    foreach my $k (@keys) {
-        $sth->execute(@{$cameras->{$k}})
-            or die "Can't execute insert: ".$dbh->errstr()."\n";
+        foreach my $k (@keys) {
+            $sth->execute(@{$cameras->{$k}})
+                or die "Can't execute insert: ".$dbh->errstr();
 
+        }
+
+        $dbh->commit;
+
+        #    $sth->execute_array({},\@keys, \@values);
     }
 
-    $dbh->commit;
-
-    #    $sth->execute_array({},\@keys, \@values);
-}
     #
     # lenses
-{    
-    $dbh->{AutoCommit} = 1;
-    $dbh->begin_work;  
-    $dbh->do("PRAGMA synchronous = OFF");
-    $dbh->do("PRAGMA journal_mode=MEMORY");
+    print "insert lenses...\n" if ($opt_v);
+    {    
+        $dbh->{AutoCommit} = 1;
+        $dbh->begin_work;  
+        $dbh->do("PRAGMA synchronous = OFF");
+        $dbh->do("PRAGMA journal_mode=MEMORY");
 
-    push(@lensTags, "idl");
-    my @keys = keys %{$lenses};
+        push(@lensTags, "idl");
+        my @keys = keys %{$lenses};
 
-    my $query = createSQLInsert('lensTags', \@lensTags);
+        my $query = createSQLInsert('lensTags', \@lensTags);
 
-    my $sth = $dbh->prepare($query) 
-        or die "Can't prepare insert: ".$dbh->errstr()."\n";
+        my $sth = $dbh->prepare($query) 
+            or die "Can't prepare insert: ".$dbh->errstr();
 
-    foreach my $k (@keys) {
-        $sth->execute(@{$lenses->{$k}})
-            or die "Can't execute insert: ".$dbh->errstr()."\n";
+        foreach my $k (@keys) {
+            $sth->execute(@{$lenses->{$k}})
+                or die "Can't execute insert: ".$dbh->errstr();
 
+        }
+        #    $sth->execute_array({},\@keys, \@values);
+
+        $dbh->commit;
     }
-    #    $sth->execute_array({},\@keys, \@values);
-
-    $dbh->commit;
-}
 
     # print "saving thumbnail";
-
 
 
     print "...done\n";

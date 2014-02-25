@@ -260,23 +260,6 @@ sub readDirectory {
     insertFiles();
 
 
-=pod
-        open(FH, ">:raw", "test.jpg") or die;
-        # binmode(FH);
-        #$d = ${$info->{'ThumbnailImage'}};
-        print FH ${$info->{'ThumbnailImage'}};
-
-        close(FH);
-
-
-        open(FH, ">:raw", "test.jpg.uu") or die;
-        # binmode(FH);
-        #$d = ${$info->{'ThumbnailImage'}};
-        print FH encode_base64(${$info->{'ThumbnailImage'}});
-
-        close(FH);
-=cut
-
 
 
     print "leggo da db le immagini raw... ";
@@ -292,6 +275,10 @@ sub readDirectory {
         saveThumbnail($id, $f);
         printf "\r%d", $n unless ($n % 100);
         # goto X if ($n > 5) ;
+
+        # TODO: su $f verifica esistenza .xmp
+        # TODO: estrazione info .xmp
+        # TODO: nuova table per descrizione keyword commenti gps
 
     }
 
@@ -470,8 +457,23 @@ X:
 
 
 
+=pod
+GPS Latitude                    : 44 deg 39' 19.24" N
+GPS Longitude                   : 10 deg 16' 25.33" E
+Title                           : torrechiara
+Subject                         : castello, notte, parma, torrechiara
+Description                     : parma, emilia romagna
+Hierarchical Subject            : castello, notte, parma, torrechiara
+GPS Latitude Ref                : North
+GPS Longitude Ref               : East
+GPS Position                    : 44 deg 39' 19.24" N, 10 deg 16' 25.33" E
 
+=cut
+sub readXmp {
+    my ($file) = @_;
+    return unless -f $file;
 
+}
 
 
 
@@ -624,11 +626,22 @@ foreach my $tag (@x) {
 =cut
 
 
+    my @extendedTags = qw(GPSLatitude GPSLongitude Title Subject Description HierarchicalSubject);
 
     my $info = ImageInfo($f, @tags);
 
     die if (! defined($info));
     my %hash = %{ $info };
+
+    my $xmp = $f;
+    $xmp =~ s/.cr2$/.xmp/i;
+
+
+    if (-f $xmp) {
+        my $info = ImageInfo($xmp, @extendedTags);
+        dump($info);
+
+    }
 
     my $digest;
 

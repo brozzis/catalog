@@ -405,7 +405,7 @@ X:
         push(@cameraTags, "idc");
         my @keys = keys %{$cameras};
 
-        my $query = createSQLInsert('cameraTags', \@cameraTags);
+        my $query = createSQLReplace('cameraTags', \@cameraTags);
 
         my $sth = $dbh->prepare($query) 
             or die "Can't prepare insert: ".$dbh->errstr();
@@ -433,7 +433,7 @@ X:
         push(@lensTags, "idl");
         my @keys = keys %{$lenses};
 
-        my $query = createSQLInsert('lensTags', \@lensTags);
+        my $query = createSQLReplace('lensTags', \@lensTags);
 
         my $sth = $dbh->prepare($query) 
             or die "Can't prepare insert: ".$dbh->errstr();
@@ -747,6 +747,20 @@ sub createSQLInsert {
     return $query;
 
 }
+
+sub createSQLReplace {
+    my ($tab, $fieldNames) = @_;
+
+    my $keystr = (join ",", ( @{$fieldNames} ));
+    my $valstr = join ',', (split(/ /, "? " x (scalar( @{$fieldNames} ))));
+
+    my $query = qq/REPLACE INTO $tab ($keystr) VALUES ($valstr)/;
+
+    return $query;
+
+}
+
+
 
 
 
